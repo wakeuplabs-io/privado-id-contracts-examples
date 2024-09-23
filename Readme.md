@@ -22,8 +22,8 @@ This repository contains examples of smart contracts and deployment scripts.
 
 |         Network          |                  Address                   |
 | :----------------------: | :----------------------------------------: |
-|   **Polygon Mainnet**    | 0x394d1dad46907bd54d15926A1ab4535EF2BF47b1 |
-| **Polygon Amoy testnet** | 0x1B20320042b29AE5c1a3ADc1674cb6bF8760530f |
+|   **Optimism Mainnet**    | TODO: |
+| **Optimism sepolia** |  |
 
 ## ERC20 example, Validators & Verifiers contracts
 
@@ -106,15 +106,6 @@ Current addresses on **Polygon Amoy** testnet. (V2.0.6 V2 validators)
 |   **Verifier**    |         0x35178273C828E08298EcB0C6F1b97B3aFf14C4cb          |          0x789D95794973034BFeDed6D4693e7cc3Eb253B3a          |
 |  **Validators**   |         0x8c99F13dc5083b1E4c16f269735EaD4cFbc4970d          |          0xEEd5068AD8Fecf0b9a91aF730195Fef9faB00356          |
 | **ERC20 example** | 0x2b23e5cF70D133fFaA7D8ba61E1bAC4637253880 (request id = 1) | 0x2b23e5cF70D133fFaA7D8ba61E1bAC4637253880  (request id = 2) |
-
-
-Legacy addresses on Polygon Mumbai testnet. (V1.0.1 V2 validators)
-
-|                   |                             Sig                             |                             MTP                              |
-|:-----------------:|:-----------------------------------------------------------:|:------------------------------------------------------------:|
-|   **Verifier**    |         0x8024014f73BcCAEe048784d835A36c49e96F2806          |          0xF71d97Fc0262bB2e5B20912a6861da0B617a07Aa          |
-|  **Validators**   |         0x1E4a22540E293C0e5E8c33DAfd6f523889cFd878          |          0x0682fbaA2E4C478aD5d24d992069dba409766121          |
-| **ERC20 example** | 0xD75638D319B1aE2a9491DC61f87a800AD362D168 (request id = 1) | 0xD75638D319B1aE2a9491DC61f87a800AD362D168  (request id = 2) |
 
 
 </details>

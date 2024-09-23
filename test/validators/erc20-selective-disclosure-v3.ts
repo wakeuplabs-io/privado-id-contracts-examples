@@ -1,19 +1,14 @@
 import { expect } from 'chai';
-import { ethers } from 'hardhat';
 import {
   deployERC20ZKPVerifierToken,
   deployValidatorContracts,
   prepareInputs,
   publishState
 } from '../utils/deploy-utils';
-import {
-  packV2ValidatorParams,
-  packV3ValidatorParams,
-  unpackV2ValidatorParams,
-  unpackV3ValidatorParams
-} from '../utils/pack-utils';
+import { packV3ValidatorParams, unpackV3ValidatorParams } from '../utils/pack-utils';
 
 const tenYears = 315360000;
+
 describe('ERC 20 Selective Disclosure (V3) test', function () {
   let state: any, validator: any;
 
@@ -32,16 +27,18 @@ describe('ERC 20 Selective Disclosure (V3) test', function () {
       'ZKP-SD',
       'ERC20SelectiveDisclosureVerifier'
     );
+
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     await publishState(state, require('./common-data/user_state_transition.json'));
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     await publishState(state, require('./common-data/issuer_genesis_state.json'));
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     await publishState(
       state,
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       require('./common-data/issuer_from_genesis_state_to_first_auth_disabled_transition_v3.json')
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { inputs, pi_a, pi_b, pi_c } = prepareInputs(require('./common-data/valid_sig_v3.json'));
 
     const account = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266';
@@ -93,7 +90,7 @@ describe('ERC 20 Selective Disclosure (V3) test', function () {
     );
 
     const requestData = await token.getZKPRequest(requestId);
-    const parsed = unpackV3ValidatorParams(requestData.data);
+    const parsed = unpackV3ValidatorParams(requestData.data) as any;
 
     expect(parsed.queryHash.toString()).to.be.equal(query.queryHash);
     expect(parsed.claimPathKey.toString()).to.be.equal(query.claimPathKey.toString());

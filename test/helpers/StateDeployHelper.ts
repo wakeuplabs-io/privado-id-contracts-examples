@@ -25,7 +25,10 @@ export class StateDeployHelper {
     return new StateDeployHelper(sgrs, enableLogging);
   }
 
-  async deployState(verifierContractName = 'VerifierStateTransition'): Promise<{
+  async deployState(
+    verifierContractName = 'VerifierStateTransition',
+    supportedIdTypes?: string[]
+  ): Promise<{
     state: Contract;
     verifier: Contract;
     stateLib: Contract;
@@ -84,6 +87,12 @@ export class StateDeployHelper {
     this.log(
       `State contract deployed to address ${await state.getAddress()} from ${await owner.getAddress()}`
     );
+
+    supportedIdTypes = [...new Set(supportedIdTypes)];
+    for (const idType of supportedIdTypes) {
+      const tx = await state.setSupportedIdType(idType, true);
+      await tx.wait();
+    }
 
     this.log('======== State: deploy completed ========');
 
@@ -155,6 +164,7 @@ export class StateDeployHelper {
 
   async getDefaultIdType(): Promise<{ defaultIdType: number; chainId: number }> {
     const chainId = parseInt(await network.provider.send('eth_chainId'), 16);
+    console.log('chainId', chainId);
     const defaultIdType = chainIdDefaultIdTypeMap.get(chainId);
     if (!defaultIdType) {
       throw new Error(`Failed to find defaultIdType in Map for chainId ${chainId}`);

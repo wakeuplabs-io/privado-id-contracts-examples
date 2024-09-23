@@ -7,23 +7,19 @@ import {
   publishState
 } from '../../utils/deploy-utils';
 import { packV2ValidatorParams, unpackV2ValidatorParams } from '../../utils/pack-utils';
-import { Contract } from "ethers";
+import { Contract } from 'ethers';
 
 const tenYears = 315360000;
-const query= {
+const query = {
   schema: BigInt('180410020913331409885634153623124536270'),
   claimPathKey: BigInt(
     '8566939875427719562376598811066985304309117528846759529734201066483458512800'
   ),
   operator: BigInt(1),
   slotIndex: BigInt(0),
-  value: ['1420070400000000000', ...new Array(63).fill('0')].map((x) =>
-    BigInt(x)
-  ),
+  value: ['1420070400000000000', ...new Array(63).fill('0')].map((x) => BigInt(x)),
   circuitIds: [''],
-  queryHash: BigInt(
-    '1496222740463292783938163206931059379817846775593932664024082849882751356658'
-  ),
+  queryHash: BigInt('1496222740463292783938163206931059379817846775593932664024082849882751356658'),
   claimPathNotExists: 0,
   metadata: 'test medatada',
   skipClaimRevocationCheck: false
@@ -53,10 +49,8 @@ describe('ERC721 test', function () {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     await publishState(state, require('../common-data/issuer_genesis_state.json'));
 
-    ({ universalVerifier, erc721LinkedUniversalVerifier: erc721 } = await deployERC721LinkedUniversalVerifier(
-      'zkpVerifier',
-      'ZKP'
-    ));
+    ({ universalVerifier, erc721LinkedUniversalVerifier: erc721 } =
+      await deployERC721LinkedUniversalVerifier('zkpVerifier', 'ZKP'));
 
     await universalVerifier.addValidatorToWhitelist(await sig.getAddress());
     await universalVerifier.addValidatorToWhitelist(await mtp.getAddress());
@@ -80,15 +74,11 @@ describe('ERC721 test', function () {
 
   async function setZKPRequests() {
     async function setRequest(requestId, query, validatorAddress) {
-      const [signer] = await ethers.getSigners();
-
-      await universalVerifier.setZKPRequest(
-        requestId, {
-          metadata: 'metadata',
-          validator: validatorAddress,
-          data: packV2ValidatorParams(query),
-        }
-      );
+      await universalVerifier.setZKPRequest(requestId, {
+        metadata: 'metadata',
+        validator: validatorAddress,
+        data: packV2ValidatorParams(query)
+      });
     }
 
     const query2 = Object.assign({}, query);
@@ -135,7 +125,7 @@ describe('ERC721 test', function () {
     expect(requestId).to.be.equal(validator === 'credentialAtomicQuerySigV2OnChain' ? 0 : 1);
 
     const requestData = await universalVerifier.getZKPRequest(requestId);
-    const parsedRD = unpackV2ValidatorParams(requestData.data);
+    const parsedRD = unpackV2ValidatorParams(requestData.data) as any;
 
     expect(parsedRD.queryHash.toString()).to.be.equal(query2.queryHash);
     expect(parsedRD.claimPathKey.toString()).to.be.equal(query2.claimPathKey.toString());
@@ -153,8 +143,6 @@ describe('ERC721 test', function () {
     const balanceBefore = await erc721.balanceOf(account);
     await erc721.mint(account, tokenId2);
     const balanceAfter = await erc721.balanceOf(account);
-    expect(balanceAfter - balanceBefore).to.be.equal(
-      BigInt('1')
-    );
+    expect(balanceAfter - balanceBefore).to.be.equal(BigInt('1'));
   }
 });

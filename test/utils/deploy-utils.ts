@@ -24,9 +24,14 @@ export async function deployValidatorContracts(
   verifierWrapper: any;
   validator: any;
 }> {
-  if (!stateAddress) {
+  if (stateAddress === '') {
     const stateDeployHelper = await StateDeployHelper.initialize();
-    const { state } = await stateDeployHelper.deployState();
+    const { state } = await stateDeployHelper.deployState(undefined, [
+      // id types from common-data fixtures
+      '0x0100',
+      '0x0112',
+      '0x0212'
+    ]);
     stateAddress = await state.getAddress();
   }
 

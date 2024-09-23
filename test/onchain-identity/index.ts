@@ -45,8 +45,8 @@ describe('Next tests reproduce identity life cycle', function () {
       // console.log('Identity address:', await identity.getAddress());
       // console.log('Identity id:', BigInt(id).toString(16));
 
-      expect(id).to.be.equal(
-        16318200065989903207865860093614592605747279308745685922538039864771744258n
+      expect(id.toString()).to.be.equal(
+        '16318200065989903207865860093614592605747279308745685922538039864771744258'
         // 93C5BAE3728FC605AF22632F905BB4B223ED817C5A8000000000000001202
       );
     });

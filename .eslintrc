@@ -1,4 +1,4 @@
-module.exports = {
+{
   "root": true,
   "parser": "@typescript-eslint/parser",
   "plugins": [
@@ -12,7 +12,8 @@ module.exports = {
     "prettier"
   ],
   "rules": {
-    "no-console": 1,       // Means warning
-    "prettier/prettier": 2 // Means error
+    "no-console": 1, // Means warning
+    "prettier/prettier": 2, // Means error  
+    "@typescript-eslint/no-explicit-any": 1 // warning
   }
-};
+}

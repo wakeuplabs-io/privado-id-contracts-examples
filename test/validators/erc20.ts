@@ -25,7 +25,7 @@ describe('ERC 20 test', function () {
   async function setZKPRequests() {
     async function checkRequest(validatorId: number) {
       const requestData = await token.getZKPRequest(validatorId);
-      const parsed = unpackV2ValidatorParams(requestData.data);
+      const parsed = unpackV2ValidatorParams(requestData.data) as any;
       expect(parsed.queryHash.toString()).to.be.equal(query.queryHash);
       expect(parsed.claimPathKey.toString()).to.be.equal(query.claimPathKey.toString());
       expect(parsed.circuitIds[0].toString()).to.be.equal(query.circuitIds[0].toString());
@@ -72,9 +72,7 @@ describe('ERC 20 test', function () {
     await checkRequest(REQUEST_ID_MTP_VALIDATOR);
   }
 
-  async function erc20VerifierFlow(
-    validator: 'SIG' | 'MTP'
-  ): Promise<void> {
+  async function erc20VerifierFlow(validator: 'SIG' | 'MTP'): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     await publishState(state, require('./common-data/user_state_transition.json'));
     // eslint-disable-next-line @typescript-eslint/no-var-requires

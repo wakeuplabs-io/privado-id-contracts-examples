@@ -3,4 +3,6 @@ export const chainIdDefaultIdTypeMap = new Map()
   .set(80001, '0x0212') // polygon mumbai
   .set(1101, '0x0231') // zkEVM
   .set(1442, '0x0232') // zkEVM testnet
-  .set(137, '0x0211'); // polygon main
+  .set(137, '0x0211') // polygon main
+  .set(10, '0x0381') // optimism main
+  .set(11155420, '0x0382'); // optimism sepolia

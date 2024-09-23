@@ -47,21 +47,27 @@ const config: HardhatUserConfig = {
     //   url: `${process.env.LINEA_RPC_URL}`,
     //   accounts: [`0x${process.env.LINEA_PRIVATE_KEY}`]
     // },
-    localhost: {
-      url: 'http://127.0.0.1:8545',
-      accounts: {
-        mnemonic: DEFAULT_MNEMONIC,
-        path: "m/44'/60'/0'/0",
-        initialIndex: 0,
-        count: 20
-      }
+    // localhost: {
+    //   url: 'http://127.0.0.1:8545',
+    //   accounts: {
+    //     mnemonic: DEFAULT_MNEMONIC,
+    //     path: "m/44'/60'/0'/0",
+    //     initialIndex: 0,
+    //     count: 20
+    //   }
+    // },
+    'opt-sepolia': {
+      chainId: 11155420,
+      url: `${process.env.OPT_SEPOLIA_RPC}`,
+      accounts: [`0x${process.env.OPT_SEPOLIA_PRIVATE_KEY}`]
     }
   },
   etherscan: {
     apiKey: {
-      'linea': process.env.LINEA_API_KEY,
-      'linea-sepolia': process.env.LINEA_API_KEY,
-      'amoy': process.env.AMOY_API_KEY,
+      linea: process.env.LINEA_API_KEY!,
+      'linea-sepolia': process.env.LINEA_API_KEY!,
+      amoy: process.env.AMOY_API_KEY!,
+      'opt-sepolia': process.env.OPT_SEPOLIA_API_KEY!
     },
     customChains: [
       {
@@ -74,21 +80,29 @@ const config: HardhatUserConfig = {
         }
       },
       {
-        network: "linea-sepolia",
+        network: 'linea-sepolia',
         chainId: 59141,
         urls: {
-          apiURL: "https://api-sepolia.lineascan.build/api",
-          browserURL: "https://sepolia.lineascan.build",
-        },
+          apiURL: 'https://api-sepolia.lineascan.build/api',
+          browserURL: 'https://sepolia.lineascan.build'
+        }
       },
       {
-        network: "linea",
+        network: 'linea',
         chainId: 59144,
         urls: {
-          apiURL: "https://api.lineascan.build/api",
-          browserURL: "https://lineascan.build",
-        },
+          apiURL: 'https://api.lineascan.build/api',
+          browserURL: 'https://lineascan.build'
+        }
       },
+      {
+        network: 'opt-sepolia',
+        chainId: 11155420,
+        urls: {
+          apiURL: 'https://api.lineascan.build/api',
+          browserURL: 'https://lineascan.build'
+        }
+      }
     ]
   },
   gasReporter: {

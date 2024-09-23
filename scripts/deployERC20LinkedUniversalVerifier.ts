@@ -1,6 +1,6 @@
 import { ethers } from 'hardhat';
 
-const universalVerifierAddress = '<you universal verifier address here>';
+const universalVerifierAddress = '0xf88552AEe625c290505036Da15FfCfC459BA41cA';
 
 async function main() {
   if (!ethers.isAddress(universalVerifierAddress)) {
@@ -9,10 +9,11 @@ async function main() {
   const verifierName = 'ERC20LinkedUniversalVerifier';
   const verifierSymbol = 'zkERC20';
 
-  const verifier = await ethers.deployContract(
+  const verifier = await ethers.deployContract(verifierName, [
+    universalVerifierAddress,
     verifierName,
-    [ universalVerifierAddress, verifierName, verifierSymbol ]
-  );
+    verifierSymbol
+  ]);
   await verifier.waitForDeployment();
   console.log(verifierName, ' contract address:', await verifier.getAddress());
 }
