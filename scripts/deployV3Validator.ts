@@ -1,12 +1,12 @@
 import { ethers, upgrades } from 'hardhat';
 import fs from 'fs';
 import path from 'path';
+
 const pathOutputJson = path.join(__dirname, './deploy_validator_output.json');
 
 async function main() {
-  const stateAddress = '0x624ce98D2d27b20b8f8d521723Df8fC4db71D79D'; // current iden3 state smart contract on main
-  // const stateAddress = '0x134b1be34911e39a8397ec6289782989729807a4'; // current iden3 state smart contract on mumbai
-  // const stateAddress = '0x1a4cC30f2aA0377b0c3bc9848766D90cb4404124'; // current iden3 state smart contract on amoy testnet
+  // const stateAddress = 'TODO:'; // current state smart contract on opt
+  const stateAddress = '0x9a1A258702050BcFB938Ad8Ec0996503473216d1'; // current state smart contract on opt-sepolia
 
   const verifierContractWrapperName = 'VerifierV3Wrapper';
   const validatorContractName = 'CredentialAtomicQueryV3Validator';

@@ -2,6 +2,7 @@ import { ethers } from 'hardhat';
 import { packV3ValidatorParams } from '../test/utils/pack-utils';
 import { ChainIds, DID, DidMethod } from '@iden3/js-iden3-core';
 import { buildVerifierId, calculateQueryHashV3, coreSchemaFromStr } from '../test/utils/utils';
+
 const Operators = {
   NOOP: 0, // No operation, skip query verification in circuit
   EQ: 1, // equal
@@ -35,18 +36,16 @@ export const QueryOperators = {
 };
 
 async function main() {
-  // current v3 validator address on mumbai
-  // const validatorAddressV3 = '0x3412AB64acFf5d94Da4914F176A43aCbDdC7Fc4a';
-  //
-  // const erc20verifierAddress = '0x36eB0E70a456c310D8d8d15ae01F6D5A7C15309A';
-  //
-  // current v3 validator address on amoy
-  const validatorAddressV3 = '0xa5f08979370AF7095cDeDb2B83425367316FAD0B';
-  const erc20verifierAddress = '0xc5Cd536cb9Cc3BD24829502A39BE593354986dc4';
-  const owner = (await ethers.getSigners())[0];
+  // current v3 validator address on opt
+  // const validatorAddressV3 = 'TODO:';
+  // const erc20verifierAddress = 'TODO:';
 
-  const ERC20Verifier = await ethers.getContractFactory('ERC20SelectiveDisclosureVerifier');
-  const erc20Verifier = await ERC20Verifier.attach(erc20verifierAddress); // current mtp validator address on mumbai
+  // current v3 validator address on opt-sepolia
+  const validatorAddressV3 = '0xa176120dFFe51c5047547C1696bba77bD33De03D';
+  const erc20verifierAddress = '0xCBF5bf6A2eDace38528BfFFE45AAb056053712A0';
+
+  const ERC20Verifier = await ethers.getContractFactory('ERC20LinkedUniversalVerifier');
+  const erc20Verifier = await ERC20Verifier.attach(erc20verifierAddress); // current validator address
   console.log(erc20Verifier, ' attached to:', await erc20Verifier.getAddress());
 
   // set default query
@@ -78,16 +77,13 @@ async function main() {
   const requestIdModifier = 100;
 
   // you can set linked requests by changing group id
-
   // const groupID = 1;
+
   // const requestIdModifier = 10000;
-  //
   // const chainId = 80001;
-  //
   // const network = 'polygon-mumbai';
 
   const chainId = 80002;
-
   const network = 'polygon-amoy';
 
   const networkFlag = Object.keys(ChainIds).find((key) => ChainIds[key] === chainId);
@@ -206,7 +202,6 @@ async function main() {
       groupID,
       proofType: 0
     },
-
     // BETWEEN
     {
       requestId: 700 * requestIdModifier,
@@ -224,7 +219,6 @@ async function main() {
       groupID,
       proofType: 0
     },
-
     // NON BETWEEN
     {
       requestId: 800 * requestIdModifier,
@@ -242,7 +236,6 @@ async function main() {
       groupID,
       proofType: 0
     },
-
     // EXISTS
     {
       requestId: 900 * requestIdModifier,
@@ -277,7 +270,6 @@ async function main() {
       groupID,
       proofType: 0
     },
-
     // GTE
     {
       requestId: 1100 * requestIdModifier,
@@ -295,9 +287,7 @@ async function main() {
       groupID,
       proofType: 0
     },
-
     // EQ (corner)
-
     {
       requestId: 150 * requestIdModifier,
       schema: schema,
@@ -314,7 +304,6 @@ async function main() {
       groupID,
       proofType: 0
     },
-
     // LT
     {
       requestId: 250 * requestIdModifier,
@@ -350,7 +339,6 @@ async function main() {
       proofType: 0
     },
     // IN corner
-
     {
       requestId: 450 * requestIdModifier,
       schema: schema,

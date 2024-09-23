@@ -1,11 +1,7 @@
-import { ethers, upgrades } from 'hardhat';
-import fs from 'fs';
-import path from 'path';
 import { StateDeployHelper } from '../test/helpers/StateDeployHelper';
-const pathOutputJson = path.join(__dirname, './deploy_validator_output.json');
 
 async function main() {
-  const validatorContractAddress = '0xd8946ddCD36Ae2552321769070bB263A275dcE35'; // mumbai
+  const validatorContractAddress = 'TODO:'; // opt-sepolia
   const validatorContractName = 'CredentialAtomicQueryV3Validator';
 
   const stateDeployHelper = await StateDeployHelper.initialize();

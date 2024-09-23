@@ -1,6 +1,7 @@
 import { ethers } from 'hardhat';
 
-const universalVerifierAddress = '0xf88552AEe625c290505036Da15FfCfC459BA41cA';
+// TODO:
+const universalVerifierAddress = '0xAf7A10FbBF614bCa1e8301a6d82D076C779bA276';
 
 async function main() {
   if (!ethers.isAddress(universalVerifierAddress)) {

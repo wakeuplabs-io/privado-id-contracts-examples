@@ -136,14 +136,17 @@ export async function publishState(
   );
 
   const { blockNumber } = await transitStateTx.wait();
-  const { timestamp } = await ethers.provider.getBlock(transitStateTx.blockNumber);
+  const block = await ethers.provider.getBlock(transitStateTx.blockNumber);
+  if (block === null) {
+    throw new Error('Block not found');
+  }
 
   return {
     oldState,
     newState,
     id,
     blockNumber,
-    timestamp
+    timestamp: block.timestamp
   };
 }
 
@@ -195,7 +198,7 @@ export async function deployClaimBuilderWrapper(enableLogging = false): Promise<
   });
   const claimBuilderWrapper = await ClaimBuilderWrapper.deploy();
   enableLogging && console.log('ClaimBuilder deployed to:', await claimBuilderWrapper.getAddress());
-  return claimBuilderWrapper;
+  return { address: await claimBuilderWrapper.getAddress() };
 }
 
 export async function deployERC20LinkedUniversalVerifier(

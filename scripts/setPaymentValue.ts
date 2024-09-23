@@ -71,7 +71,7 @@ const ldContextJSONAnimaProofOfLife = `{
     }
   ]
 }`;
-const typeNameAnimaProofOfLife= 'AnimaProofOfLife';
+const typeNameAnimaProofOfLife = 'AnimaProofOfLife';
 
 const pathToCredentialSubject = 'https://www.w3.org/2018/credentials#credentialSubject';
 
@@ -86,10 +86,10 @@ async function main() {
 
   registerDidMethodNetwork({
     method: DidMethod.Iden3,
-    blockchain: "privado",
+    blockchain: 'privado',
     chainId: 21000,
-    network: "main",
-    networkFlag: 0b1010_0000 | 0b0000_0001,
+    network: 'main',
+    networkFlag: 0b1010_0000 | 0b0000_0001
   });
 
   const issuerId = DID.idFromDID(DID.parse(issuerDID));
