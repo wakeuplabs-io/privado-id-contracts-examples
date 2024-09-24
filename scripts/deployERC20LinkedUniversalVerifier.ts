@@ -1,7 +1,7 @@
 import { ethers } from 'hardhat';
 
-// TODO:
-const universalVerifierAddress = '0xAf7A10FbBF614bCa1e8301a6d82D076C779bA276';
+// opt-sepolia
+const universalVerifierAddress = '0x102eB31F9f2797e8A84a79c01FFd9aF7D1d9e556';
 
 async function main() {
   if (!ethers.isAddress(universalVerifierAddress)) {

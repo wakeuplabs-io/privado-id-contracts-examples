@@ -1,6 +1,18 @@
-import { ethers } from 'hardhat';
-import { packV2ValidatorParams } from '../test/utils/pack-utils';
-import { calculateQueryHashV2 } from '../test/utils/utils';
+import hre from 'hardhat';
+import Web3 from 'web3';
+import { poseidon } from '@iden3/js-crypto';
+import { SchemaHash } from '@iden3/js-iden3-core';
+import { CircuitId, prepareCircuitArrayValues } from '@0xpolygonid/js-sdk';
+
+// opt-sepolia values
+const VERIFIER_CONTRACT = 'UniversalVerifier'; // UniversalVerifier or ERC20Verifier
+const VERIFIER_ADDRESS = '0x102eB31F9f2797e8A84a79c01FFd9aF7D1d9e556'; // Universal Verifier or ERC20 Verifier
+const SIGV2_VALIDATOR_ADDRESS = '0xbA308e870d35A092810a3F0e4d21ece65551dE42';
+const MTP_VALIDATOR_ADDRESS = '0x5EDbb8681312bA0e01Fd41C759817194b95ee604';
+
+const TRANSFER_REQUEST_ID_SIG_VALIDATOR = 1;
+const TRANSFER_REQUEST_ID_MTP_VALIDATOR = 2;
+
 const Operators = {
   NOOP: 0, // No operation, skip query verification in circuit
   EQ: 1, // equal
@@ -11,320 +23,161 @@ const Operators = {
   NE: 6 // not equal
 };
 
-export const QueryOperators = {
-  $noop: Operators.NOOP,
-  $eq: Operators.EQ,
-  $lt: Operators.LT,
-  $gt: Operators.GT,
-  $in: Operators.IN,
-  $nin: Operators.NIN,
-  $ne: Operators.NE
-};
+function packValidatorParams(query, allowedIssuers = []) {
+  const web3 = new Web3(Web3.givenProvider || 'ws://localhost:8545');
+  return web3.eth.abi.encodeParameter(
+    {
+      CredentialAtomicQuery: {
+        schema: 'uint256',
+        claimPathKey: 'uint256',
+        operator: 'uint256',
+        slotIndex: 'uint256',
+        value: 'uint256[]',
+        queryHash: 'uint256',
+        allowedIssuers: 'uint256[]',
+        circuitIds: 'string[]',
+        skipClaimRevocationCheck: 'bool',
+        claimPathNotExists: 'uint256'
+      }
+    },
+    {
+      schema: query.schema,
+      claimPathKey: query.claimPathKey,
+      operator: query.operator,
+      slotIndex: query.slotIndex,
+      value: query.value,
+      queryHash: query.queryHash,
+      allowedIssuers: allowedIssuers,
+      circuitIds: query.circuitIds,
+      skipClaimRevocationCheck: query.skipClaimRevocationCheck,
+      claimPathNotExists: query.claimPathNotExists
+    }
+  );
+}
+
+function coreSchemaFromStr(schemaIntString) {
+  const schemaInt = BigInt(schemaIntString);
+  return SchemaHash.newSchemaHashFromInt(schemaInt);
+}
+
+function calculateQueryHashV2(
+  values,
+  schema,
+  slotIndex,
+  operator,
+  claimPathKey,
+  claimPathNotExists
+) {
+  const expValue = prepareCircuitArrayValues(values, 64);
+  const valueHash = poseidon.spongeHashX(expValue, 6);
+  const schemaHash = coreSchemaFromStr(schema);
+  const quaryHash = poseidon.hash([
+    schemaHash.bigInt(),
+    BigInt(slotIndex),
+    BigInt(operator),
+    BigInt(claimPathKey),
+    BigInt(claimPathNotExists),
+    valueHash
+  ]);
+  return quaryHash;
+}
+
+function buildZkpRequest(requestId: number, circuit: CircuitId) {
+  const query: any = {
+    requestId,
+    schema: '74977327600848231385663280181476307657', // you can run https://go.dev/play/p/oB_oOW7kBEw to get schema hash and claimPathKey using YOUR schema
+    claimPathKey: '20376033832371109177683048456014525905119173674985843915445634726167450989630', // merklized path to field in the W3C credential according to JSONLD  schema e.g. birthday in the KYCAgeCredential under the url "https://raw.githubusercontent.com/iden3/claim-schema-vocab/main/schemas/json-ld/kyc-v3.json-ld"
+    operator: Operators.LT,
+    slotIndex: 0,
+    value: [20020101, ...new Array(63).fill(0)], // for operators 1-3 only first value matters
+    circuitIds: [circuit],
+    skipClaimRevocationCheck: false,
+    claimPathNotExists: 0
+  };
+
+  query.queryHash = calculateQueryHashV2(
+    query.value,
+    query.schema,
+    query.slotIndex,
+    query.operator,
+    query.claimPathKey,
+    query.claimPathNotExists
+  ).toString();
+
+  const invokeRequestMetadata = {
+    id: '7f38a193-0918-4a48-9fac-36adfdb8b542',
+    typ: 'application/iden3comm-plain-json',
+    type: 'https://iden3-communication.io/proofs/1.0/contract-invoke-request',
+    thid: '7f38a193-0918-4a48-9fac-36adfdb8b542',
+    body: {
+      reason: 'airdrop participation',
+      transaction_data: {
+        contract_address: '0x76A9d02221f4142bbb5C07E50643cCbe0Ed6406C',
+        method_id: 'b68967e2',
+        chain_id: 11155420,
+        network: 'opt-sepolia'
+      },
+      scope: [
+        {
+          id: query.requestId,
+          circuitId: query.circuitIds[0],
+          query: {
+            allowedIssuers: ['*'],
+            context:
+              'https://raw.githubusercontent.com/iden3/claim-schema-vocab/main/schemas/json-ld/kyc-v3.json-ld',
+            credentialSubject: {
+              birthday: {
+                $lt: query.value[0]
+              }
+            },
+            type: 'KYCAgeCredential'
+          }
+        }
+      ]
+    }
+  };
+
+  return {
+    query,
+    invokeRequestMetadata
+  };
+}
 
 async function main() {
-  // sig:validator:    // current sig validator address on mumbai
-  // const validatorAddressSig = '0x59f2a6D94D0d02F3a2F527a8B6175dc511935624';
-  //
-  // // mtp:validator:    // current mtp validator address on mumbai
-  // const validatorAddressMTP = '0xb9b51F7E8C83C90FE48e0aBd815ef0418685CcF6';
-  //
-  // const erc20verifierAddress = '0x3a4d4E47bFfF6bD0EF3cd46580D9e36F3367da03'; //with sig    validatorc
-
-  // sig:validator:    // current sig validator address on amoy
-  const validatorAddressSig = '0x8c99F13dc5083b1E4c16f269735EaD4cFbc4970d';
-
-  // mtp:validator:    // current mtp validator address on amoy
-  const validatorAddressMTP = '0xEEd5068AD8Fecf0b9a91aF730195Fef9faB00356';
-
-  const erc20verifierAddress = '0x2b23e5cF70D133fFaA7D8ba61E1bAC4637253880'; //with sig    validatorc
-
-  const owner = (await ethers.getSigners())[0];
-
-  const ERC20Verifier = await ethers.getContractFactory('ERC20Verifier');
-  const erc20Verifier = await ERC20Verifier.attach(erc20verifierAddress); // current mtp validator address on mumbai
-
-  console.log(erc20Verifier, ' attached to:', await erc20Verifier.getAddress());
-
-  // set default query
-  const circuitIdSig = 'credentialAtomicQuerySigV2OnChain';
-  const circuitIdMTP = 'credentialAtomicQueryMTPV2OnChain';
-
-  const type = 'KYCAgeCredential';
-
-  const queryHash = '';
-  const circuitIds = [circuitIdSig];
-  const skipClaimRevocationCheck = false;
-  const allowedIssuers = [];
-  const schemaUrl =
-    'https://raw.githubusercontent.com/iden3/claim-schema-vocab/main/schemas/json-ld/kyc-v3.json-ld';
-  const schema = '74977327600848231385663280181476307657';
-  const schemaClaimPathKey =
-    '20376033832371109177683048456014525905119173674985843915445634726167450989630';
-  const slotIndex = 0;
-  const claimPathDoesntExist = 0;
-  const requestIdModifier = 1;
-
-  // you can run https://go.dev/play/p/3id7HAhf-Wi to get schema hash and claimPathKey using YOUR schema
-
-  // init these values for non-merklized credential use case
-  // const schemaUrl =
-  //   'https://raw.githubusercontent.com/iden3/claim-schema-vocab/main/schemas/json-ld/kyc-nonmerklized.jsonld';
-  // const schemaClaimPathKey = '0';
-  // const slotIndex = 2;
-  // const claimPathDoesntExist = 1;
-  // const schema = '198285726510688200335207273836123338699';
-  // const requestIdModifier = 100;
-
-  const ageQueries = [
-    // EQ
-    {
-      requestId: 100 * requestIdModifier,
-      schema: schema,
-      claimPathKey: schemaClaimPathKey,
-      operator: 1,
-      value: [19960424, ...new Array(63).fill(0)],
-      slotIndex,
-      queryHash,
-      circuitIds,
-      allowedIssuers,
-      skipClaimRevocationCheck,
-      claimPathNotExists: claimPathDoesntExist
-    },
-    //     // LT
-    {
-      requestId: 200 * requestIdModifier,
-      schema: schema,
-      claimPathKey: schemaClaimPathKey,
-      operator: 2,
-      value: [20020101, ...new Array(63).fill(0)],
-      slotIndex,
-      queryHash,
-      circuitIds,
-      allowedIssuers,
-      skipClaimRevocationCheck,
-      claimPathNotExists: claimPathDoesntExist
-    },
-    // GT
-    {
-      requestId: 300 * requestIdModifier,
-      schema: schema,
-      claimPathKey: schemaClaimPathKey,
-      operator: 3,
-      value: [500, ...new Array(63).fill(0)],
-      slotIndex,
-      queryHash,
-      circuitIds,
-      allowedIssuers,
-      skipClaimRevocationCheck,
-      claimPathNotExists: claimPathDoesntExist
-    },
-    // IN
-    {
-      requestId: 400 * requestIdModifier,
-      schema: schema,
-      claimPathKey: schemaClaimPathKey,
-      operator: 4,
-      value: [...new Array(63).fill(0), 19960424],
-      slotIndex,
-      queryHash,
-      circuitIds,
-      allowedIssuers,
-      skipClaimRevocationCheck,
-      claimPathNotExists: claimPathDoesntExist
-    },
-    // NIN
-    {
-      requestId: 500 * requestIdModifier,
-      schema: schema,
-      claimPathKey: schemaClaimPathKey,
-      operator: 5,
-      value: [...new Array(64).fill(0)],
-      slotIndex,
-      queryHash,
-      circuitIds,
-      allowedIssuers,
-      skipClaimRevocationCheck,
-      claimPathNotExists: claimPathDoesntExist
-    },
-    // NE
-    {
-      requestId: 600 * requestIdModifier,
-      schema: schema,
-      claimPathKey: schemaClaimPathKey,
-      operator: 6,
-      value: [500, ...new Array(63).fill(0)],
-      slotIndex,
-      queryHash,
-      circuitIds,
-      allowedIssuers,
-      skipClaimRevocationCheck,
-      claimPathNotExists: claimPathDoesntExist
-    },
-    // EQ (corner)
-
-    {
-      requestId: 150 * requestIdModifier,
-      schema: schema,
-      claimPathKey: schemaClaimPathKey,
-      operator: 1,
-      value: [...new Array(64).fill(0)],
-      slotIndex,
-      queryHash,
-      circuitIds,
-      allowedIssuers,
-      skipClaimRevocationCheck,
-      claimPathNotExists: claimPathDoesntExist
-    },
-
-    // LT
-    {
-      requestId: 250 * requestIdModifier,
-      schema: schema,
-      claimPathKey: schemaClaimPathKey,
-      operator: 2,
-      value: [...new Array(64).fill(0)],
-      slotIndex,
-      queryHash,
-      circuitIds,
-      allowedIssuers,
-      skipClaimRevocationCheck,
-      claimPathNotExists: claimPathDoesntExist
-    },
-    // GT
-    {
-      requestId: 350 * requestIdModifier,
-      schema: schema,
-      claimPathKey: schemaClaimPathKey,
-      operator: 3,
-      value: [...new Array(64).fill(0)],
-      slotIndex,
-      queryHash,
-      circuitIds,
-      allowedIssuers,
-      skipClaimRevocationCheck,
-      claimPathNotExists: claimPathDoesntExist
-    },
-    // IN corner
-
-    {
-      requestId: 450 * requestIdModifier,
-      schema: schema,
-      claimPathKey: schemaClaimPathKey,
-      operator: 4,
-      value: [...new Array(64).fill(0)],
-      slotIndex,
-      queryHash,
-      circuitIds,
-      allowedIssuers,
-      skipClaimRevocationCheck,
-      claimPathNotExists: claimPathDoesntExist
-    },
-    // NIN corner
-    {
-      requestId: 550 * requestIdModifier,
-      schema: schema,
-      claimPathKey: schemaClaimPathKey,
-      operator: 5,
-      value: [...new Array(63).fill(0), 19960424],
-      slotIndex,
-      queryHash,
-      circuitIds,
-      allowedIssuers,
-      skipClaimRevocationCheck,
-      claimPathNotExists: claimPathDoesntExist
-    },
-    // NE corner
-    {
-      requestId: 650 * requestIdModifier,
-      schema: schema,
-      claimPathKey: schemaClaimPathKey,
-      operator: 6,
-      value: [...new Array(64).fill(0)],
-      slotIndex,
-      queryHash,
-      circuitIds,
-      allowedIssuers,
-      skipClaimRevocationCheck,
-      claimPathNotExists: claimPathDoesntExist
-    }
-  ];
-
   try {
-    for (let i = 0; i < ageQueries.length; i++) {
-      const query = ageQueries[i];
-      console.log(query.requestId);
+    const verifier = await hre.ethers.getContractAt(VERIFIER_CONTRACT, VERIFIER_ADDRESS);
 
-      const operatorKey =
-        Object.keys(QueryOperators)[Object.values(QueryOperators).indexOf(query.operator)];
-
-      query.queryHash = calculateQueryHashV2(
-        query.value,
-        query.schema,
-        query.slotIndex,
-        query.operator,
-        query.claimPathKey,
-        claimPathDoesntExist
-      ).toString();
-
-      const invokeRequestMetadata = {
-        id: '7f38a193-0918-4a48-9fac-36adfdb8b542',
-        typ: 'application/iden3comm-plain-json',
-        type: 'https://iden3-communication.io/proofs/1.0/contract-invoke-request',
-        thid: '7f38a193-0918-4a48-9fac-36adfdb8b542',
-        body: {
-          reason: 'for testing',
-          transaction_data: {
-            contract_address: erc20verifierAddress,
-            method_id: 'b68967e2',
-            chain_id: 80001,
-            network: 'polygon-mumbai'
-          },
-          scope: [
-            {
-              id: query.requestId,
-              circuitId: circuitIdSig,
-              query: {
-                allowedIssuers: ['*'],
-                context: schemaUrl,
-                credentialSubject: {
-                  birthday: {
-                    [operatorKey]:
-                      query.operator === Operators.IN || query.operator === Operators.NIN
-                        ? query.value
-                        : query.value[0]
-                  }
-                },
-                type: type
-              }
-            }
-          ]
-        }
-      };
-
-      const tx = await erc20Verifier.setZKPRequest(query.requestId, {
-        metadata: JSON.stringify(invokeRequestMetadata),
-        validator: validatorAddressSig,
-        data: packV2ValidatorParams(query)
-      });
-
-      console.log(tx.hash);
-      await tx.wait();
-
-      query.circuitIds = [circuitIdMTP];
-      query.requestId = query.requestId + 1000;
-      console.log(query.requestId);
-
-      invokeRequestMetadata.body.scope[0].circuitId = circuitIdMTP;
-      invokeRequestMetadata.body.scope[0].id = query.requestId;
-      // mtp request set
-      const txMtp = await erc20Verifier.setZKPRequest(query.requestId, {
-        metadata: JSON.stringify(invokeRequestMetadata),
-        validator: validatorAddressMTP,
-        data: packV2ValidatorParams(query)
-      });
-      console.log(txMtp.hash);
-      await txMtp.wait();
+    // Only UniversalVerifier requires whitelisting
+    if (VERIFIER_CONTRACT === 'UniversalVerifier') {
+      await verifier.addValidatorToWhitelist(SIGV2_VALIDATOR_ADDRESS);
+      await verifier.addValidatorToWhitelist(MTP_VALIDATOR_ADDRESS);
     }
+
+    // set sig request
+    const sigZkRequest = buildZkpRequest(
+      TRANSFER_REQUEST_ID_SIG_VALIDATOR,
+      CircuitId.AtomicQuerySigV2OnChain
+    );
+    const sigTx = await verifier.setZKPRequest(sigZkRequest.query.requestId, {
+      metadata: JSON.stringify(sigZkRequest.invokeRequestMetadata),
+      validator: SIGV2_VALIDATOR_ADDRESS,
+      data: packValidatorParams(sigZkRequest.query)
+    });
+    await sigTx.wait();
+    console.log('Sig zk request set', sigTx.hash);
+
+    // set mtp request
+    const mtpZkRequest = buildZkpRequest(
+      TRANSFER_REQUEST_ID_MTP_VALIDATOR,
+      CircuitId.AtomicQueryMTPV2OnChain
+    );
+    const mtpTx = await verifier.setZKPRequest(mtpZkRequest.query.requestId, {
+      metadata: JSON.stringify(mtpZkRequest.invokeRequestMetadata),
+      validator: MTP_VALIDATOR_ADDRESS,
+      data: packValidatorParams(mtpZkRequest.query)
+    });
+    await mtpTx.wait();
+    console.log('Mtp zk request set', mtpTx.hash);
   } catch (e) {
     console.log('error: ', e);
   }

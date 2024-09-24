@@ -8,7 +8,7 @@ const pathOutputJson = path.join(__dirname, './deploy_output.json');
 
 async function main() {
   // const stateAddress = 'TODO:'; // current state smart contract on opt
-  const stateAddress = 'TODO:'; // current state smart contract on opt-sepolia
+  const stateAddress = '0x9a1A258702050BcFB938Ad8Ec0996503473216d1'; // current state smart contract on opt-sepolia
 
   const owner = (await ethers.getSigners())[0];
   const [poseidon2Elements, poseidon3Elements, poseidon4Elements] = await deployPoseidons(
