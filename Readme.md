@@ -40,15 +40,6 @@ Also, it contains the example of ERC20 based smart contract with enabled zkp ver
 <details>
 <summary>Addresses</summary>
 
-Current addresses on **Optimism Mainnet** (V2 Validators):
-
-|                   |                             Sig                             |                             MTP                              |
-|:-----------------:|:-----------------------------------------------------------:|:------------------------------------------------------------:|
-| **Verifier** | TODO: | TODO: |
-| **Validators** | TODO: | TODO: |
-| **ERC20 example** | TODO: (request id = 1) | TODO:  (request id = 2) |
-
-
 Current addresses on **Optimism Sepolia** (V2 validators)
 
 |                   |                             Sig                             |                             MTP                              |
@@ -66,29 +57,17 @@ Here is an example of a **non-merklized** on-chain issuer. This example demonstr
 <details>
 <summary>Addresses</summary>
 
-**Optimism Mainnet**:
-
-|                             |                    Address                     |
-|:---------------------------:|:------------------------------------------:|
-|    Poseidon2Elements    | TODO: |
-|    Poseidon3Elements    | TODO: |
-|    Poseidon4Elements    | TODO: |
-|         SmtLib          | TODO: |
-|      ClaimBuilder       | TODO: |
-|       IdentityLib       | TODO: |
-| **BalanceCredentialIssuer** | TODO: |
-
 **Optimism Sepolia**:
 
 |                             |                    Address                     |
 |:---------------------------:|:------------------------------------------:|
-|    Poseidon2Elements    | TODO: |
-|    Poseidon3Elements    | TODO: |
-|    Poseidon4Elements    | TODO: |
-|         SmtLib          | TODO: |
-|      ClaimBuilder       | TODO: |
-|       IdentityLib       | TODO: |
-| **BalanceCredentialIssuer** | TODO: |
+|    Poseidon2Elements    | 0x7d3D036408Da90AdDc25DD5A50d7e4f0F10Db8d9 |
+|    Poseidon3Elements    | 0xf782cf5c51b812bE50F69A5E9dA98a6a58757c0A |
+|    Poseidon4Elements    | 0x8e87E4baE7C762666F50Eb22eC8455C7F3242465 |
+|         SmtLib          | 0x476a05e0D05D8746b4BC7dA0FeB8653617d5fd94 |
+|      ClaimBuilder       | 0x56D303dDAb554d15A1E6214Fd43368d58AD0321d |
+|       IdentityLib       | 0xD19843914d6C740a58b8893Bb1bF9E2243050E59 |
+| **BalanceCredentialIssuer** | 0x033cB4c7CC8F034F5B8D4a7Df2b7EA8CE43bDacF |
 
 
 </details>
@@ -101,15 +80,15 @@ Here is an example of a **merklized** on-chain issuer. This example demonstrates
 <details>
 <summary>Addresses</summary>
 
-Optimism sepolia:
+**Optimism Sepolia**:
 
 |                       |                    Address                     |
 |:---------------------:|:------------------------------------------:|
-| **Poseidon2Elements** | TODO: |
-| **Poseidon3Elements** | TODO: |
-| **Poseidon4Elements** | TODO: |
-|      **SmtLib**       | TODO: |
-| **Identity Contract** | TODO: |
+| **Poseidon2Elements** | 0x0f7724DfBc278CCfca8812130a58A8FFCE11F05a |
+| **Poseidon3Elements** | 0xFF0a093E3bA5EF2CcE037787AdF524a1ceF13Ab5 |
+| **Poseidon4Elements** | 0x0536cA4ED908E757484149021661fFdAF527a384 |
+|      **SmtLib**       | 0x598fC8a6FD45c3605a46682e8C6aD4F6eA4156A7 |
+| **Identity Contract** | 0x5157f50D2067C85b403aDB2799AaE2c28A633a4b |
 
 </details>
 

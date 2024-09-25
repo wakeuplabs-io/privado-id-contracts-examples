@@ -20,6 +20,16 @@
       "address": "0x5EDbb8681312bA0e01Fd41C759817194b95ee604",
       "txHash": "0x40fd2506944e5c6fe9258ce48ae25704ee40c2fa9999ce094a30e3a671a5fd5f",
       "kind": "transparent"
+    },
+    {
+      "address": "0x5157f50D2067C85b403aDB2799AaE2c28A633a4b",
+      "txHash": "0x90590e41041ff40d0dd5684eed747e4c21939aef5c8a317b7fb14d9dfc88af31",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x033cB4c7CC8F034F5B8D4a7Df2b7EA8CE43bDacF",
+      "txHash": "0x7e9a96ca15f807645231ac7bbaf2207e8e271c16f1461ca706554fef4185090c",
+      "kind": "transparent"
     }
   ],
   "impls": {
@@ -294,6 +304,362 @@
           }
         },
         "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable2Step": [
+            {
+              "contract": "Ownable2StepUpgradeable",
+              "label": "_pendingOwner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol:23",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "8fee3f0fb3d5c2abc0eee389af3b2a31b4a93f8d87c8f26b34770e254d31b69b": {
+      "address": "0x4DA513048524E3671527C3B42fBb9EC72bf2F0bb",
+      "txHash": "0x1a6e707a7ead608f7422a342adef55fd83ea99cd3c1d6c9529bf6f1d6b94f777",
+      "layout": {
+        "solcVersion": "0.8.20",
+        "storage": [],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)2595_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(Ownable2StepStorage)2502_storage": {
+            "label": "struct Ownable2StepUpgradeable.Ownable2StepStorage",
+            "members": [
+              {
+                "label": "_pendingOwner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)2544_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable2Step": [
+            {
+              "contract": "Ownable2StepUpgradeable",
+              "label": "_pendingOwner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol:23",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "992c53be725b2364ff8f74ec20ce21234668453265d33297f88bfdd9f70326f6": {
+      "address": "0x9da2DCee8b42e145C708998a7852ae1D8b8EBE5d",
+      "txHash": "0x40d6c530c795120fe2f95e67478657f1ccfb7ca3109daa8d8fa8eeed13893a1a",
+      "layout": {
+        "solcVersion": "0.8.20",
+        "storage": [],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_struct(SubjectField)143_storage)dyn_storage": {
+            "label": "struct INonMerklizedIssuer.SubjectField[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_uint256)8_storage": {
+            "label": "uint256[8]",
+            "numberOfBytes": "256"
+          },
+          "t_array(t_uint256)dyn_storage": {
+            "label": "uint256[]",
+            "numberOfBytes": "32"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes_storage": {
+            "label": "bytes",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_array(t_struct(SubjectField)143_storage)dyn_storage)": {
+            "label": "mapping(uint256 => struct INonMerklizedIssuer.SubjectField[])",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_array(t_uint256)dyn_storage)": {
+            "label": "mapping(uint256 => uint256[])",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(ClaimItem)3428_storage)": {
+            "label": "mapping(uint256 => struct BalanceCredentialIssuer.ClaimItem)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(BalanceCredentialIssuerStorage)3398_storage": {
+            "label": "struct BalanceCredentialIssuer.BalanceCredentialIssuerStorage",
+            "members": [
+              {
+                "label": "countOfIssuedClaims",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "userClaims",
+                "type": "t_mapping(t_uint256,t_array(t_uint256)dyn_storage)",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "idToClaim",
+                "type": "t_mapping(t_uint256,t_struct(ClaimItem)3428_storage)",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "idToCredentialSubject",
+                "type": "t_mapping(t_uint256,t_array(t_struct(SubjectField)143_storage)dyn_storage)",
+                "offset": 0,
+                "slot": "3"
+              }
+            ],
+            "numberOfBytes": "128"
+          },
+          "t_struct(ClaimItem)3428_storage": {
+            "label": "struct BalanceCredentialIssuer.ClaimItem",
+            "members": [
+              {
+                "label": "id",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "issuanceDate",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "claim",
+                "type": "t_array(t_uint256)8_storage",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "320"
+          },
+          "t_struct(InitializableStorage)2595_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(Ownable2StepStorage)2502_storage": {
+            "label": "struct Ownable2StepUpgradeable.Ownable2StepStorage",
+            "members": [
+              {
+                "label": "_pendingOwner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)2544_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(SubjectField)143_storage": {
+            "label": "struct INonMerklizedIssuer.SubjectField",
+            "members": [
+              {
+                "label": "key",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "value",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "rawValue",
+                "type": "t_bytes_storage",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          }
+        },
+        "namespaces": {
+          "erc7201:polygonid.storage.BalanceCredentialIssuer": [
+            {
+              "contract": "BalanceCredentialIssuer",
+              "label": "countOfIssuedClaims",
+              "type": "t_uint64",
+              "src": "contracts/examples/BalanceCredentialIssuer.sol:23",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "BalanceCredentialIssuer",
+              "label": "userClaims",
+              "type": "t_mapping(t_uint256,t_array(t_uint256)dyn_storage)",
+              "src": "contracts/examples/BalanceCredentialIssuer.sol:25",
+              "offset": 0,
+              "slot": "1"
+            },
+            {
+              "contract": "BalanceCredentialIssuer",
+              "label": "idToClaim",
+              "type": "t_mapping(t_uint256,t_struct(ClaimItem)3428_storage)",
+              "src": "contracts/examples/BalanceCredentialIssuer.sol:26",
+              "offset": 0,
+              "slot": "2"
+            },
+            {
+              "contract": "BalanceCredentialIssuer",
+              "label": "idToCredentialSubject",
+              "type": "t_mapping(t_uint256,t_array(t_struct(SubjectField)143_storage)dyn_storage)",
+              "src": "contracts/examples/BalanceCredentialIssuer.sol:30",
+              "offset": 0,
+              "slot": "3"
+            }
+          ],
           "erc7201:openzeppelin.storage.Ownable2Step": [
             {
               "contract": "Ownable2StepUpgradeable",
