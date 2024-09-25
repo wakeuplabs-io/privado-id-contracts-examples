@@ -21,7 +21,7 @@ This repository contains examples of smart contracts and deployment scripts.
 |         Network          |                  Address                   |
 | :----------------------: | :----------------------------------------: |
 |   **Optimism Mainnet** | TODO: |
-| **Optimism sepolia** | 0xf88552AEe625c290505036Da15FfCfC459BA41cA |
+| **Optimism sepolia** | 0x102eB31F9f2797e8A84a79c01FFd9aF7D1d9e556 |
 
 ## ERC20 example, Validators & Verifiers contracts
 
@@ -40,7 +40,7 @@ Also, it contains the example of ERC20 based smart contract with enabled zkp ver
 <details>
 <summary>Addresses</summary>
 
-Current addresses on **Optimism Mainnet** (V3 Validators):
+Current addresses on **Optimism Mainnet** (V2 Validators):
 
 |                   |                             Sig                             |                             MTP                              |
 |:-----------------:|:-----------------------------------------------------------:|:------------------------------------------------------------:|
@@ -49,13 +49,13 @@ Current addresses on **Optimism Mainnet** (V3 Validators):
 | **ERC20 example** | TODO: (request id = 1) | TODO:  (request id = 2) |
 
 
-Current addresses on **Optimism Sepolia** (V3 validators)
+Current addresses on **Optimism Sepolia** (V2 validators)
 
 |                   |                             Sig                             |                             MTP                              |
 |:-----------------:|:-----------------------------------------------------------:|:------------------------------------------------------------:|
 | **Verifier** | TODO: | TODO: |
-| **Validators** | TODO: | TODO: |
-| **ERC20 example** | TODO: (request id = 1) | TODO:  (request id = 2) |
+| **Validators** | 0x5EDbb8681312bA0e01Fd41C759817194b95ee604 | 0xbA308e870d35A092810a3F0e4d21ece65551dE42 |
+| **ERC20 example** | 0x76A9d02221f4142bbb5C07E50643cCbe0Ed6406C (request id = 1) | 0x76A9d02221f4142bbb5C07E50643cCbe0Ed6406C  (request id = 2) |
 
 </details>
 
@@ -116,17 +116,15 @@ Optimism sepolia:
 
 ## Deploy scripts
 
-1. **deploy:mumbai:erc20** - deploy erc20 smart contract to polygon mumbai
-1. **deploy:mumbai:sig** - deploy signature validator to polygon mumbai
-1. **deploy:mumbai:mtp** - deploy MTP validator to polygon mumbai
-1. **deploy:main:erc20** - deploy erc20 smart contract to polygon mainnet
-1. **deploy:main:sig** - deploy signature validator to polygon mainnet
-1. **deploy:main:mtp** - deploy MTP validator to polygon mainnet
+1. **deploy:opt-sepolia:erc20** - deploy erc20 smart contract to optimism sepolia
+1. **deploy:opt-sepolia:sig** - deploy signature validator to optimism sepolia
+1. **deploy:opt-sepolia:mtp** - deploy MTP validator to optimism sepolia
+1. **deploy:main:erc20** - deploy erc20 smart contract to optimism mainnet
+1. **deploy:main:sig** - deploy signature validator to optimism mainnet
+1. **deploy:main:mtp** - deploy MTP validator to optimism mainnet
 
-1. **deploy:mumbai:identityexample** - deploy onchain merklized issuer example to polygon mumbai
-1. **deploy:amoy:identityexample** - deploy onchain merklized issuer example to polygon amoy
-1. **deploy:main:identityexample** - deploy onchain merklized issuer example to polygon mainnet
+1. **deploy:opt-sepolia:identityexample** - deploy onchain merklized issuer example to optimism sepolia
+1. **deploy:main:identityexample** - deploy onchain merklized issuer example to optimism mainnet
 
-1. **deploy:mumbai:balancecredentialissuer** - deploy onchain non-merklized issuer example to polygon mumbai
-1. **deploy:amoy:balancecredentialissuer** - deploy onchain non-merklized issuer example to polygon amoy
-1. **deploy:main:balancecredentialissuer** - deploy onchain non-merklized issuer example to polygon mainnet
+1. **deploy:opt-sepolia:balancecredentialissuer** - deploy onchain non-merklized issuer example to optimism sepolia
+1. **deploy:main:balancecredentialissuer** - deploy onchain non-merklized issuer example to optimism mainnet
