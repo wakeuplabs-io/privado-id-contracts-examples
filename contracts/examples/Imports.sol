@@ -13,5 +13,3 @@ import {VerifierMTP} from '@iden3/contracts/lib/VerifierMTP.sol';
 import {VerifierMTPWrapper} from '@iden3/contracts/lib/VerifierMTPWrapper.sol';
 import {VerifierSig} from '@iden3/contracts/lib/VerifierSig.sol';
 import {VerifierSigWrapper} from '@iden3/contracts/lib/VerifierSigWrapper.sol';
-import {VerifierV3} from '@iden3/contracts/lib/VerifierV3.sol';
-import {VerifierV3Wrapper} from '@iden3/contracts/lib/VerifierV3Wrapper.sol';

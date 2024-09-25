@@ -1,7 +1,7 @@
 import { StateDeployHelper } from '../test/helpers/StateDeployHelper';
 
 async function main() {
-  const validatorContractAddress = 'TODO:'; // opt-testnet
+  const validatorContractAddress = '0x5EDbb8681312bA0e01Fd41C759817194b95ee604'; // opt-testnet
   const validatorContractName = 'CredentialAtomicQueryMTPV2Validator';
 
   const stateDeployHelper = await StateDeployHelper.initialize();
