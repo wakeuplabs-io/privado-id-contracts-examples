@@ -6,7 +6,7 @@ import { CircuitId, prepareCircuitArrayValues } from '@0xpolygonid/js-sdk';
 
 // opt-sepolia values
 const VERIFIER_CONTRACT = 'UniversalVerifier'; // UniversalVerifier or ERC20Verifier
-const VERIFIER_ADDRESS = '0x102eB31F9f2797e8A84a79c01FFd9aF7D1d9e556'; // Universal Verifier or ERC20 Verifier
+const VERIFIER_ADDRESS = '0x102eB31F9f2797e8A84a79c01FFd9aF7D1d9e556'; // Universal Verifier (0x102eB31F9f2797e8A84a79c01FFd9aF7D1d9e556) or ERC20 Verifier (0xE5012898489C708CF273E6CD0b935c0780a9DDB5)
 const SIGV2_VALIDATOR_ADDRESS = '0xbA308e870d35A092810a3F0e4d21ece65551dE42';
 const MTP_VALIDATOR_ADDRESS = '0x5EDbb8681312bA0e01Fd41C759817194b95ee604';
 
