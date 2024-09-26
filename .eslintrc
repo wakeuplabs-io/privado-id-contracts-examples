@@ -12,7 +12,7 @@
     "prettier"
   ],
   "rules": {
-    "no-console": 0, // Means warning
+    "no-console": 1, // Means warning
     "prettier/prettier": 2, // Means error  
     "@typescript-eslint/no-explicit-any": 1 // warning
   }

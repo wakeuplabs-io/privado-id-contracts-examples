@@ -1,6 +1,6 @@
 import { ethers } from 'hardhat';
 
-// opt-sepolia
+// current universal verifier smart contract on opt-sepolia
 const universalVerifierAddress = '0x102eB31F9f2797e8A84a79c01FFd9aF7D1d9e556';
 
 async function main() {
