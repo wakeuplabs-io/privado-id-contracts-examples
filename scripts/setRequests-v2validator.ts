@@ -4,7 +4,7 @@ import { poseidon } from '@iden3/js-crypto';
 import { SchemaHash } from '@iden3/js-iden3-core';
 import { CircuitId, prepareCircuitArrayValues } from '@0xpolygonid/js-sdk';
 
-// opt-sepolia values
+// current smart contracts on opt-sepolia
 const VERIFIER_CONTRACT = 'UniversalVerifier'; // UniversalVerifier or ERC20Verifier
 const VERIFIER_ADDRESS = '0x102eB31F9f2797e8A84a79c01FFd9aF7D1d9e556'; // Universal Verifier (0x102eB31F9f2797e8A84a79c01FFd9aF7D1d9e556) or ERC20 Verifier (0xE5012898489C708CF273E6CD0b935c0780a9DDB5)
 const SIGV2_VALIDATOR_ADDRESS = '0xbA308e870d35A092810a3F0e4d21ece65551dE42';
@@ -12,6 +12,8 @@ const MTP_VALIDATOR_ADDRESS = '0x5EDbb8681312bA0e01Fd41C759817194b95ee604';
 
 const TRANSFER_REQUEST_ID_SIG_VALIDATOR = 1;
 const TRANSFER_REQUEST_ID_MTP_VALIDATOR = 2;
+
+const OPID_CHAIN_ID_SEPOLIA = 11155420;
 
 const Operators = {
   NOOP: 0, // No operation, skip query verification in circuit
@@ -112,9 +114,9 @@ function buildZkpRequest(requestId: number, circuit: CircuitId) {
     body: {
       reason: 'airdrop participation',
       transaction_data: {
-        contract_address: '0x76A9d02221f4142bbb5C07E50643cCbe0Ed6406C',
+        contract_address: VERIFIER_ADDRESS,
         method_id: 'b68967e2',
-        chain_id: 11155420,
+        chain_id: OPID_CHAIN_ID_SEPOLIA,
         network: 'opt-sepolia'
       },
       scope: [

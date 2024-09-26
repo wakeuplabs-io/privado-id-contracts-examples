@@ -4,7 +4,7 @@ import { calculateQueryHashV3, CircuitId, core } from '@0xpolygonid/js-sdk';
 import { buildVerifierId } from '../test/utils/utils';
 import { packV3ValidatorParams } from '../test/utils/pack-utils';
 
-// opt-sepolia values
+// current smart contracts on opt-sepolia
 const VERIFIER_CONTRACT = 'UniversalVerifier'; // UniversalVerifier or ERC20Verifier
 const VERIFIER_ADDRESS = '0x102eB31F9f2797e8A84a79c01FFd9aF7D1d9e556'; // Universal Verifier or ERC20 Verifier
 const VALIDATOR_ADDRESS_V3 = '0xd52131eDC6777d7F7199663dc1629307E13d723A';
