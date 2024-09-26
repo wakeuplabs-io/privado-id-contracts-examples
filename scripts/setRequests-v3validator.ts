@@ -1,7 +1,38 @@
-import { ethers } from 'hardhat';
+import hre from 'hardhat';
+import { SchemaHash } from '@iden3/js-iden3-core';
+import { calculateQueryHashV3, CircuitId, core } from '@0xpolygonid/js-sdk';
+import { buildVerifierId } from '../test/utils/utils';
 import { packV3ValidatorParams } from '../test/utils/pack-utils';
-import { ChainIds, DID, DidMethod } from '@iden3/js-iden3-core';
-import { buildVerifierId, calculateQueryHashV3, coreSchemaFromStr } from '../test/utils/utils';
+
+// opt-sepolia values
+const VERIFIER_CONTRACT = 'UniversalVerifier'; // UniversalVerifier or ERC20Verifier
+const VERIFIER_ADDRESS = '0x102eB31F9f2797e8A84a79c01FFd9aF7D1d9e556'; // Universal Verifier or ERC20 Verifier
+const VALIDATOR_ADDRESS_V3 = '0xd52131eDC6777d7F7199663dc1629307E13d723A';
+
+const TRANSFER_REQUEST_ID_V3_VALIDATOR = 3;
+
+const OPID_METHOD = 'opid';
+const OPID_BLOCKCHAIN = 'optimism';
+const OPID_CHAIN_ID_MAIN = 10;
+const OPID_CHAIN_ID_SEPOLIA = 11155420;
+const OPID_NETWORK_MAIN = 'main';
+const OPID_NETWORK_SEPOLIA = 'sepolia';
+
+core.registerDidMethod(OPID_METHOD, 0b00000011);
+core.registerDidMethodNetwork({
+  method: OPID_METHOD,
+  blockchain: OPID_BLOCKCHAIN,
+  chainId: OPID_CHAIN_ID_SEPOLIA,
+  network: OPID_NETWORK_SEPOLIA,
+  networkFlag: 0b1000_0000 | 0b0000_0010
+});
+core.registerDidMethodNetwork({
+  method: OPID_METHOD,
+  blockchain: OPID_BLOCKCHAIN,
+  chainId: OPID_CHAIN_ID_MAIN,
+  network: OPID_NETWORK_MAIN,
+  networkFlag: 0b1000_0000 | 0b0000_0001
+});
 
 const Operators = {
   NOOP: 0, // No operation, skip query verification in circuit
@@ -10,455 +41,112 @@ const Operators = {
   GT: 3, // greater than
   IN: 4, // in
   NIN: 5, // not in
-  NE: 6, // not equal
-  SD: 16, // selective disclosure
-  LTE: 7, // less than equal
-  GTE: 8, // greater than equal
-  BETWEEN: 9, // between
-  NONBETWEEN: 10, // non between
-  EXISTS: 11 // exists
+  NE: 6 // not equal
 };
 
-export const QueryOperators = {
-  $noop: Operators.NOOP,
-  $eq: Operators.EQ,
-  $lt: Operators.LT,
-  $gt: Operators.GT,
-  $in: Operators.IN,
-  $nin: Operators.NIN,
-  $ne: Operators.NE,
-  $sd: Operators.SD,
-  $between: Operators.BETWEEN,
-  $nonbetween: Operators.NONBETWEEN,
-  $exists: Operators.EXISTS,
-  $lte: Operators.LTE,
-  $gte: Operators.GTE
-};
+function coreSchemaFromStr(schemaIntString) {
+  const schemaInt = BigInt(schemaIntString);
+  return SchemaHash.newSchemaHashFromInt(schemaInt);
+}
+
+async function buildZkpRequest(requestId: number, circuit: CircuitId) {
+  const verifierId = buildVerifierId(VERIFIER_ADDRESS, {
+    blockchain: 'optimism',
+    networkId: 'sepolia',
+    method: OPID_METHOD
+  });
+
+  const query: any = {
+    requestId,
+    schema: '74977327600848231385663280181476307657', // you can run https://go.dev/play/p/oB_oOW7kBEw to get schema hash and claimPathKey using YOUR schema
+    claimPathKey: '20376033832371109177683048456014525905119173674985843915445634726167450989630', // merklized path to field in the W3C credential according to JSONLD  schema e.g. birthday in the KYCAgeCredential under the url "https://raw.githubusercontent.com/iden3/claim-schema-vocab/main/schemas/json-ld/kyc-v3.json-ld"
+    operator: Operators.LT,
+    slotIndex: 0,
+    value: [20020101, ...new Array(63).fill(0)], // for operators 1-3 only first value matters
+    circuitIds: [circuit],
+    skipClaimRevocationCheck: false,
+    claimPathNotExists: 0,
+    verifierID: verifierId.bigInt().toString(),
+    nullifierSessionID: 0,
+    groupID: 0,
+    proofType: 0
+  };
+
+  const merklized = 1;
+  const schemaHash = coreSchemaFromStr(query.schema);
+  query.queryHash = calculateQueryHashV3(
+    query.value.map((i) => BigInt(i)),
+    schemaHash,
+    query.slotIndex,
+    query.operator,
+    query.claimPathKey,
+    1, // valueArrSize
+    merklized,
+    query.skipClaimRevocationCheck ? 0 : 1,
+    verifierId.bigInt().toString(),
+    query.nullifierSessionID
+  ).toString();
+
+  const invokeRequestMetadata = {
+    id: '7f38a193-0918-4a48-9fac-36adfdb8b542',
+    typ: 'application/iden3comm-plain-json',
+    type: 'https://iden3-communication.io/proofs/1.0/contract-invoke-request',
+    thid: '7f38a193-0918-4a48-9fac-36adfdb8b542',
+    body: {
+      reason: 'airdrop participation',
+      transaction_data: {
+        contract_address: VERIFIER_ADDRESS,
+        method_id: 'b68967e2',
+        chain_id: OPID_CHAIN_ID_SEPOLIA,
+        network: 'opt-sepolia'
+      },
+      scope: [
+        {
+          id: query.requestId,
+          circuitId: query.circuitIds[0],
+          query: {
+            allowedIssuers: ['*'],
+            context:
+              'https://raw.githubusercontent.com/iden3/claim-schema-vocab/main/schemas/json-ld/kyc-v3.json-ld',
+            credentialSubject: {
+              birthday: {
+                $lt: query.value[0]
+              }
+            },
+            type: 'KYCAgeCredential'
+          }
+        }
+      ]
+    }
+  };
+
+  return {
+    query,
+    invokeRequestMetadata
+  };
+}
 
 async function main() {
-  // current v3 validator address on opt
-  // const validatorAddressV3 = 'TODO:';
-  // const erc20verifierAddress = 'TODO:';
-
-  // current v3 validator address on opt-sepolia
-  const validatorAddressV3 = '0xa176120dFFe51c5047547C1696bba77bD33De03D';
-  const erc20verifierAddress = '0xCBF5bf6A2eDace38528BfFFE45AAb056053712A0';
-
-  const ERC20Verifier = await ethers.getContractFactory('ERC20LinkedUniversalVerifier');
-  const erc20Verifier = await ERC20Verifier.attach(erc20verifierAddress); // current validator address
-  console.log(erc20Verifier, ' attached to:', await erc20Verifier.getAddress());
-
-  // set default query
-  const circuitIdV3 = 'credentialAtomicQueryV3OnChain-beta.1';
-
-  const type = 'KYCAgeCredential';
-
-  const queryHash = '';
-  const circuitIds = [circuitIdV3];
-  const skipClaimRevocationCheck = false;
-  const allowedIssuers = [];
-  // const schemaUrl =
-  //   'https://raw.githubusercontent.com/iden3/claim-schema-vocab/main/schemas/json-ld/kyc-v3.json-ld';
-  // const schema = '74977327600848231385663280181476307657';
-  // const schemaClaimPathKey =
-  //   '20376033832371109177683048456014525905119173674985843915445634726167450989630';
-  // const slotIndex = 0;
-  // const merklized = 1;
-  // const requestIdModifier = 1;
-  const groupID = 0;
-  // you can run https://go.dev/play/p/3id7HAhf-Wi to get schema hash and claimPathKey using YOUR schema
-  //init these values for non-merklized credential use case
-  const schemaUrl =
-    'https://raw.githubusercontent.com/iden3/claim-schema-vocab/main/schemas/json-ld/kyc-nonmerklized.jsonld';
-  const schemaClaimPathKey = '0';
-  const slotIndex = 2;
-  const merklized = 0;
-  const schema = '198285726510688200335207273836123338699';
-  const requestIdModifier = 100;
-
-  // you can set linked requests by changing group id
-  // const groupID = 1;
-
-  // const requestIdModifier = 10000;
-  // const chainId = 80001;
-  // const network = 'polygon-mumbai';
-
-  const chainId = 80002;
-  const network = 'polygon-amoy';
-
-  const networkFlag = Object.keys(ChainIds).find((key) => ChainIds[key] === chainId);
-
-  if (!networkFlag) {
-    throw new Error(`Invalid chain id ${chainId}`);
-  }
-  const [blockchain, networkId] = networkFlag.split(':');
-
-  const verifierId = buildVerifierId(await erc20Verifier.getAddress(), {
-    blockchain,
-    networkId,
-    method: DidMethod.PolygonId
-  });
-  console.log(verifierId.bigInt());
-  const ageQueries = [
-    // EQ
-    {
-      requestId: 100 * requestIdModifier,
-      schema: schema,
-      claimPathKey: schemaClaimPathKey,
-      operator: Operators.EQ,
-      value: [19960424],
-      slotIndex,
-      queryHash,
-      circuitIds,
-      allowedIssuers,
-      skipClaimRevocationCheck,
-      verifierID: verifierId.bigInt(),
-      nullifierSessionID: 0,
-      groupID,
-      proofType: 0
-    },
-    // LT
-    {
-      requestId: 200 * requestIdModifier,
-      schema: schema,
-      claimPathKey: schemaClaimPathKey,
-      operator: Operators.LT,
-      value: [20020101],
-      slotIndex,
-      queryHash,
-      circuitIds,
-      allowedIssuers,
-      skipClaimRevocationCheck,
-      verifierID: verifierId.bigInt(),
-      nullifierSessionID: 0,
-      groupID,
-      proofType: 0
-    },
-    // GT
-    {
-      requestId: 300 * requestIdModifier,
-      schema: schema,
-      claimPathKey: schemaClaimPathKey,
-      operator: Operators.GT,
-      value: [500],
-      slotIndex,
-      queryHash,
-      circuitIds,
-      allowedIssuers,
-      skipClaimRevocationCheck,
-      verifierID: verifierId.bigInt().toString(),
-      nullifierSessionID: 0,
-      groupID,
-      proofType: 0
-    },
-    // IN
-    {
-      requestId: 400 * requestIdModifier,
-      schema: schema,
-      claimPathKey: schemaClaimPathKey,
-      operator: Operators.IN,
-      value: [...new Array(63).fill(0), 19960424],
-      slotIndex,
-      queryHash,
-      circuitIds,
-      allowedIssuers,
-      skipClaimRevocationCheck,
-      verifierID: verifierId.bigInt().toString(),
-      nullifierSessionID: 0,
-      groupID,
-      proofType: 0
-    },
-    // NIN
-    {
-      requestId: 500 * requestIdModifier,
-      schema: schema,
-      claimPathKey: schemaClaimPathKey,
-      operator: Operators.NIN,
-      value: [...new Array(64).fill(0)],
-      slotIndex,
-      queryHash,
-      circuitIds,
-      allowedIssuers,
-      skipClaimRevocationCheck,
-      verifierID: verifierId.bigInt().toString(),
-      nullifierSessionID: 0,
-      groupID,
-      proofType: 0
-    },
-    // NE
-    {
-      requestId: 600 * requestIdModifier,
-      schema: schema,
-      claimPathKey: schemaClaimPathKey,
-      operator: Operators.NE,
-      value: [500],
-      slotIndex,
-      queryHash,
-      circuitIds,
-      allowedIssuers,
-      skipClaimRevocationCheck,
-      verifierID: verifierId.bigInt().toString(),
-      nullifierSessionID: 0,
-      groupID,
-      proofType: 0
-    },
-    // BETWEEN
-    {
-      requestId: 700 * requestIdModifier,
-      schema: schema,
-      claimPathKey: schemaClaimPathKey,
-      operator: Operators.BETWEEN,
-      value: [20000101, 20050101],
-      slotIndex,
-      queryHash,
-      circuitIds,
-      allowedIssuers,
-      skipClaimRevocationCheck,
-      verifierID: verifierId.bigInt().toString(),
-      nullifierSessionID: 0,
-      groupID,
-      proofType: 0
-    },
-    // NON BETWEEN
-    {
-      requestId: 800 * requestIdModifier,
-      schema: schema,
-      claimPathKey: schemaClaimPathKey,
-      operator: Operators.NONBETWEEN,
-      value: [20030101, 20050101],
-      slotIndex,
-      queryHash,
-      circuitIds,
-      allowedIssuers,
-      skipClaimRevocationCheck,
-      verifierID: verifierId.bigInt().toString(),
-      nullifierSessionID: 0,
-      groupID,
-      proofType: 0
-    },
-    // EXISTS
-    {
-      requestId: 900 * requestIdModifier,
-      schema: schema,
-      claimPathKey: schemaClaimPathKey,
-      operator: Operators.EXISTS,
-      value: [1],
-      slotIndex,
-      queryHash,
-      circuitIds,
-      allowedIssuers,
-      skipClaimRevocationCheck,
-      verifierID: verifierId.bigInt().toString(),
-      nullifierSessionID: 0,
-      groupID,
-      proofType: 0
-    },
-    // LTE
-    {
-      requestId: 1000 * requestIdModifier,
-      schema: schema,
-      claimPathKey: schemaClaimPathKey,
-      operator: Operators.LTE,
-      value: [20020101],
-      slotIndex,
-      queryHash,
-      circuitIds,
-      allowedIssuers,
-      skipClaimRevocationCheck,
-      verifierID: verifierId.bigInt().toString(),
-      nullifierSessionID: 0,
-      groupID,
-      proofType: 0
-    },
-    // GTE
-    {
-      requestId: 1100 * requestIdModifier,
-      schema: schema,
-      claimPathKey: schemaClaimPathKey,
-      operator: Operators.GTE,
-      value: [20020101],
-      slotIndex,
-      queryHash,
-      circuitIds,
-      allowedIssuers,
-      skipClaimRevocationCheck,
-      verifierID: verifierId.bigInt().toString(),
-      nullifierSessionID: 0,
-      groupID,
-      proofType: 0
-    },
-    // EQ (corner)
-    {
-      requestId: 150 * requestIdModifier,
-      schema: schema,
-      claimPathKey: schemaClaimPathKey,
-      operator: Operators.EQ,
-      value: [0],
-      slotIndex,
-      queryHash,
-      circuitIds,
-      allowedIssuers,
-      skipClaimRevocationCheck,
-      verifierID: verifierId.bigInt().toString(),
-      nullifierSessionID: 0,
-      groupID,
-      proofType: 0
-    },
-    // LT
-    {
-      requestId: 250 * requestIdModifier,
-      schema: schema,
-      claimPathKey: schemaClaimPathKey,
-      operator: Operators.LT,
-      value: [0],
-      slotIndex,
-      queryHash,
-      circuitIds,
-      allowedIssuers,
-      skipClaimRevocationCheck,
-      verifierID: verifierId.bigInt().toString(),
-      nullifierSessionID: 0,
-      groupID,
-      proofType: 0
-    },
-    // GT
-    {
-      requestId: 350 * requestIdModifier,
-      schema: schema,
-      claimPathKey: schemaClaimPathKey,
-      operator: Operators.GT,
-      value: [0],
-      slotIndex,
-      queryHash,
-      circuitIds,
-      allowedIssuers,
-      skipClaimRevocationCheck,
-      verifierID: verifierId.bigInt().toString(),
-      nullifierSessionID: 0,
-      groupID,
-      proofType: 0
-    },
-    // IN corner
-    {
-      requestId: 450 * requestIdModifier,
-      schema: schema,
-      claimPathKey: schemaClaimPathKey,
-      operator: Operators.IN,
-      value: [0],
-      slotIndex,
-      queryHash,
-      circuitIds,
-      allowedIssuers,
-      skipClaimRevocationCheck,
-      verifierID: verifierId.bigInt().toString(),
-      nullifierSessionID: 0,
-      groupID,
-      proofType: 0
-    },
-    // NIN corner
-    {
-      requestId: 550 * requestIdModifier,
-      schema: schema,
-      claimPathKey: schemaClaimPathKey,
-      operator: Operators.NIN,
-      value: [...new Array(63).fill(0), 19960424],
-      slotIndex,
-      queryHash,
-      circuitIds,
-      allowedIssuers,
-      skipClaimRevocationCheck,
-      verifierID: verifierId.bigInt().toString(),
-      nullifierSessionID: 0,
-      groupID,
-      proofType: 0
-    },
-    // NE corner
-    {
-      requestId: 650 * requestIdModifier,
-      schema: schema,
-      claimPathKey: schemaClaimPathKey,
-      operator: Operators.NE,
-      value: [0],
-      slotIndex,
-      queryHash,
-      circuitIds,
-      allowedIssuers,
-      skipClaimRevocationCheck,
-      verifierID: verifierId.bigInt().toString(),
-      nullifierSessionID: 0,
-      groupID,
-      proofType: 0
-    }
-  ];
-  console.log(DID.parseFromId(verifierId).string());
-
   try {
-    for (let i = 0; i < ageQueries.length; i++) {
-      const query = ageQueries[i];
-      console.log(query.requestId);
+    const verifier = await hre.ethers.getContractAt(VERIFIER_CONTRACT, VERIFIER_ADDRESS);
 
-      const operatorKey =
-        Object.keys(QueryOperators)[Object.values(QueryOperators).indexOf(query.operator)];
-
-      const schemaHash = coreSchemaFromStr(query.schema);
-      query.queryHash = calculateQueryHashV3(
-        query.value.map((i) => BigInt(i)),
-        schemaHash,
-        query.slotIndex,
-        query.operator,
-        query.claimPathKey,
-        query.value.length,
-        merklized,
-        query.skipClaimRevocationCheck ? 0 : 1,
-        query.verifierID.toString(),
-        query.nullifierSessionID
-      ).toString();
-
-      const invokeRequestMetadata = {
-        id: '7f38a193-0918-4a48-9fac-36adfdb8b542',
-        typ: 'application/iden3comm-plain-json',
-        type: 'https://iden3-communication.io/proofs/1.0/contract-invoke-request',
-        thid: '7f38a193-0918-4a48-9fac-36adfdb8b542',
-        from: DID.parseFromId(verifierId).string(),
-        body: {
-          reason: 'for testing',
-          transaction_data: {
-            contract_address: erc20verifierAddress,
-            method_id: 'b68967e2',
-            chain_id: chainId,
-            network: network
-          },
-          scope: [
-            {
-              id: query.requestId,
-              circuitId: circuitIdV3,
-              query: {
-                allowedIssuers: ['*'],
-                context: schemaUrl,
-                credentialSubject: {
-                  birthday: {
-                    [operatorKey]:
-                      query.operator === Operators.IN || query.operator === Operators.NIN
-                        ? query.value
-                        : query.value[0]
-                  }
-                },
-                type: type
-              }
-            }
-          ]
-        }
-      };
-
-      const tx = await erc20Verifier.setZKPRequest(query.requestId, {
-        metadata: JSON.stringify(invokeRequestMetadata),
-        validator: validatorAddressV3,
-        data: packV3ValidatorParams(query)
-      });
-
-      console.log(tx.hash);
-      await tx.wait();
+    // Only UniversalVerifier requires whitelisting
+    if (VERIFIER_CONTRACT === 'UniversalVerifier') {
+      await verifier.addValidatorToWhitelist(VALIDATOR_ADDRESS_V3);
     }
+
+    // set sig request
+    const sigZkRequest = await buildZkpRequest(
+      TRANSFER_REQUEST_ID_V3_VALIDATOR,
+      CircuitId.AtomicQueryV3OnChain
+    );
+    const sigTx = await verifier.setZKPRequest(sigZkRequest.query.requestId, {
+      metadata: JSON.stringify(sigZkRequest.invokeRequestMetadata),
+      validator: VALIDATOR_ADDRESS_V3,
+      data: packV3ValidatorParams(sigZkRequest.query)
+    });
+    await sigTx.wait();
+    console.log('Sig zk request set', sigTx.hash);
   } catch (e) {
     console.log('error: ', e);
   }
