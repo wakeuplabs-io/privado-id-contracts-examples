@@ -44,9 +44,9 @@ Current addresses on **Optimism Sepolia**
 
 | | Sig | MTP | V3 |
 |:-----------------:|:-----------------:|:-----------------:|:-----------------:|
-| **Validators** | 0x5EDbb8681312bA0e01Fd41C759817194b95ee604 | 0xbA308e870d35A092810a3F0e4d21ece65551dE42 | 0xd52131eDC6777d7F7199663dc1629307E13d723A |
-| **ERC20Verifier example** | 0xE5012898489C708CF273E6CD0b935c0780a9DDB5 (request id = 1) | 0xE5012898489C708CF273E6CD0b935c0780a9DDB5  (request id = 2) | 0xE5012898489C708CF273E6CD0b935c0780a9DDB5  (request id = 3) |
-| **ERC20LinkedUniversalVerifier example** | 0x76A9d02221f4142bbb5C07E50643cCbe0Ed6406C (request id = 1) | 0x76A9d02221f4142bbb5C07E50643cCbe0Ed6406C  (request id = 2) | 0xE5012898489C708CF273E6CD0b935c0780a9DDB5  (request id = 3) |
+| **Validators** | 0xbA308e870d35A092810a3F0e4d21ece65551dE42 | 0x6e009702a8b16Dca15Fa145E3906B13E75Dc516e | 0xd52131eDC6777d7F7199663dc1629307E13d723A |
+| **ERC20Verifier example** | 0xca6bfa62791d3c7c7ed1a5b320018c1C1dAC89Ee (request id = 1) | 0xca6bfa62791d3c7c7ed1a5b320018c1C1dAC89Ee  (request id = 2) | 0xca6bfa62791d3c7c7ed1a5b320018c1C1dAC89Ee  (request id = 3) |
+| **ERC20LinkedUniversalVerifier example** | 0x76A9d02221f4142bbb5C07E50643cCbe0Ed6406C (request id = 1) | 0x76A9d02221f4142bbb5C07E50643cCbe0Ed6406C  (request id = 2) | 0x76A9d02221f4142bbb5C07E50643cCbe0Ed6406C  (request id = 3) |
 | **ERC20SelectiveDisclosure example** | - | - | 0x9B786F6218FFF6d9742f22426cF4bDDC6F8cb9f8  (request id = 3) |
 
 </details>
