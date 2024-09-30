@@ -1,11 +1,8 @@
-import { ethers, upgrades } from 'hardhat';
-import fs from 'fs';
-import path from 'path';
 import { StateDeployHelper } from '../test/helpers/StateDeployHelper';
-const pathOutputJson = path.join(__dirname, './deploy_validator_output.json');
 
 async function main() {
-  const validatorContractAddress = '0x03Ee09635E9946165dd9538e9414f0ACE57e42e1'; // mumbai
+  // current smart contracts on opt-sepolia
+  const validatorContractAddress = '0x5EDbb8681312bA0e01Fd41C759817194b95ee604';
   const validatorContractName = 'CredentialAtomicQueryMTPV2Validator';
 
   const stateDeployHelper = await StateDeployHelper.initialize();

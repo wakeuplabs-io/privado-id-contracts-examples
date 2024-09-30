@@ -27,26 +27,16 @@ const config: HardhatUserConfig = {
   },
   networks: {
     // main: {
-    //   chainId: 137,
+    //   chainId: 10,
     //   url: `${process.env.MAIN_RPC_URL}`,
     //   accounts: [`0x${process.env.MAIN_PRIVATE_KEY}`],
     //   gasPrice: 200000000000
     // },
-    // amoy: {
-    //   chainId: 80002,
-    //   url: `${process.env.AMOY_RPC_URL}`,
-    //   accounts: [`0x${process.env.AMOY_PRIVATE_KEY}`]
-    // },
-    // 'linea-sepolia': {
-    //   chainId: 59141,
-    //   url: `${process.env.LINEA_SEPOLIA_RPC_URL}`,
-    //   accounts: [`0x${process.env.LINEA_SEPOLIA_PRIVATE_KEY}`]
-    // },
-    // linea: {
-    //   chainId: 59144,
-    //   url: `${process.env.LINEA_RPC_URL}`,
-    //   accounts: [`0x${process.env.LINEA_PRIVATE_KEY}`]
-    // },
+    'opt-sepolia': {
+      chainId: 11155420,
+      url: `${process.env.OPT_SEPOLIA_RPC}`,
+      accounts: [`0x${process.env.OPT_SEPOLIA_PRIVATE_KEY}`]
+    }
     // localhost: {
     //   url: 'http://127.0.0.1:8545',
     //   accounts: {
@@ -56,60 +46,18 @@ const config: HardhatUserConfig = {
     //     count: 20
     //   }
     // },
-    'opt-sepolia': {
-      chainId: 11155420,
-      url: `${process.env.OPT_SEPOLIA_RPC}`,
-      accounts: [`0x${process.env.OPT_SEPOLIA_PRIVATE_KEY}`]
-    }
   },
   etherscan: {
     apiKey: {
-      linea: process.env.LINEA_API_KEY!,
-      'linea-sepolia': process.env.LINEA_API_KEY!,
-      amoy: process.env.AMOY_API_KEY!,
       'opt-sepolia': process.env.OPT_SEPOLIA_API_KEY!
     },
-    customChains: [
-      {
-        network: 'amoy',
-        chainId: 80002,
-        urls: {
-          apiURL:
-            'https://www.oklink.com/api/v5/explorer/contract/verify-source-code-plugin/AMOY_TESTNET',
-          browserURL: 'https://www.oklink.com/amoy'
-        }
-      },
-      {
-        network: 'linea-sepolia',
-        chainId: 59141,
-        urls: {
-          apiURL: 'https://api-sepolia.lineascan.build/api',
-          browserURL: 'https://sepolia.lineascan.build'
-        }
-      },
-      {
-        network: 'linea',
-        chainId: 59144,
-        urls: {
-          apiURL: 'https://api.lineascan.build/api',
-          browserURL: 'https://lineascan.build'
-        }
-      },
-      {
-        network: 'opt-sepolia',
-        chainId: 11155420,
-        urls: {
-          apiURL: 'https://api.lineascan.build/api',
-          browserURL: 'https://lineascan.build'
-        }
-      }
-    ]
+    customChains: []
   },
   gasReporter: {
     currency: 'USD',
     coinmarketcap: process.env.COINMARKETCAP_KEY,
     enabled: !!process.env.REPORT_GAS,
-    token: 'MATIC'
+    token: 'ETH'
   }
 };
 
