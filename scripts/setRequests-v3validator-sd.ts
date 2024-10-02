@@ -5,8 +5,8 @@ import { buildVerifierId } from '../test/utils/utils';
 import { packV3ValidatorParams } from '../test/utils/pack-utils';
 
 // current smart contracts on opt-sepolia
-const VERIFIER_CONTRACT = 'ERC20Verifier'; // UniversalVerifier or ERC20Verifier
-const VERIFIER_ADDRESS = '0xca6bfa62791d3c7c7ed1a5b320018c1C1dAC89Ee'; // Universal Verifier or ERC20 Verifier
+const VERIFIER_CONTRACT = 'ERC20SelectiveDisclosureVerifier';
+const VERIFIER_ADDRESS = '0x9B786F6218FFF6d9742f22426cF4bDDC6F8cb9f8'; // ERC20SelectiveDisclosureVerifier
 const VALIDATOR_ADDRESS_V3 = '0xd52131eDC6777d7F7199663dc1629307E13d723A';
 
 const TRANSFER_REQUEST_ID_V3_VALIDATOR = 3;
@@ -41,7 +41,8 @@ const Operators = {
   GT: 3, // greater than
   IN: 4, // in
   NIN: 5, // not in
-  NE: 6 // not equal
+  NE: 6, // not equal
+  SD: 16 // Selective disclosure
 };
 
 function coreSchemaFromStr(schemaIntString) {
@@ -49,27 +50,27 @@ function coreSchemaFromStr(schemaIntString) {
   return SchemaHash.newSchemaHashFromInt(schemaInt);
 }
 
-async function buildZkpRequest(requestId: number, circuit: CircuitId) {
+async function buildSdZkpRequest(requestId: number) {
   const verifierId = buildVerifierId(VERIFIER_ADDRESS, {
-    blockchain: 'optimism',
-    networkId: 'sepolia',
+    blockchain: OPID_BLOCKCHAIN,
+    networkId: OPID_NETWORK_SEPOLIA,
     method: OPID_METHOD
   });
 
   const query: any = {
     requestId,
-    schema: '74977327600848231385663280181476307657', // you can run https://go.dev/play/p/oB_oOW7kBEw to get schema hash and claimPathKey using YOUR schema
+    schema: '74977327600848231385663280181476307657', // you can run https://go.dev/play/p/3id7HAhf-Wi  to get schema hash and claimPathKey using YOUR schema
     claimPathKey: '20376033832371109177683048456014525905119173674985843915445634726167450989630', // merklized path to field in the W3C credential according to JSONLD  schema e.g. birthday in the KYCAgeCredential under the url "https://raw.githubusercontent.com/iden3/claim-schema-vocab/main/schemas/json-ld/kyc-v3.json-ld"
-    operator: Operators.LT,
-    slotIndex: 0,
-    value: [20020101, ...new Array(63).fill(0)], // for operators 1-3 only first value matters
-    circuitIds: [circuit],
+    operator: Operators.SD, //
+    slotIndex: 0, // because schema  is merklized for merklized credential, otherwise you should actual put slot index  https://docs.iden3.io/protocol/non-merklized/#motivation
+    value: [],
+    circuitIds: [CircuitId.AtomicQueryV3OnChain],
     skipClaimRevocationCheck: false,
-    claimPathNotExists: 0,
+    claimPathNotExists: 0, // 0 for inclusion (merklized credentials) - 1 for non-merklized
     verifierID: verifierId.bigInt().toString(),
     nullifierSessionID: 0,
     groupID: 0,
-    proofType: 0
+    proofType: 1
   };
 
   const merklized = 1;
@@ -80,7 +81,7 @@ async function buildZkpRequest(requestId: number, circuit: CircuitId) {
     query.slotIndex,
     query.operator,
     query.claimPathKey,
-    1, // valueArrSize
+    0, // valueArrSize
     merklized,
     query.skipClaimRevocationCheck ? 0 : 1,
     verifierId.bigInt().toString(),
@@ -92,6 +93,7 @@ async function buildZkpRequest(requestId: number, circuit: CircuitId) {
     typ: 'application/iden3comm-plain-json',
     type: 'https://iden3-communication.io/proofs/1.0/contract-invoke-request',
     thid: '7f38a193-0918-4a48-9fac-36adfdb8b542',
+    from: core.DID.parseFromId(verifierId).string(),
     body: {
       reason: 'airdrop participation',
       transaction_data: {
@@ -104,14 +106,13 @@ async function buildZkpRequest(requestId: number, circuit: CircuitId) {
         {
           id: query.requestId,
           circuitId: query.circuitIds[0],
+          proofType: 'BJJSignature2021',
           query: {
             allowedIssuers: ['*'],
             context:
               'https://raw.githubusercontent.com/iden3/claim-schema-vocab/main/schemas/json-ld/kyc-v3.json-ld',
             credentialSubject: {
-              birthday: {
-                $lt: query.value[0]
-              }
+              birthday: {}
             },
             type: 'KYCAgeCredential'
           }
@@ -130,16 +131,8 @@ async function main() {
   try {
     const verifier = await hre.ethers.getContractAt(VERIFIER_CONTRACT, VERIFIER_ADDRESS);
 
-    // Only UniversalVerifier requires whitelisting
-    if (VERIFIER_CONTRACT === 'UniversalVerifier') {
-      await verifier.addValidatorToWhitelist(VALIDATOR_ADDRESS_V3);
-    }
-
     // set sig request
-    const sigZkRequest = await buildZkpRequest(
-      TRANSFER_REQUEST_ID_V3_VALIDATOR,
-      CircuitId.AtomicQueryV3OnChain
-    );
+    const sigZkRequest = await buildSdZkpRequest(TRANSFER_REQUEST_ID_V3_VALIDATOR);
     const sigTx = await verifier.setZKPRequest(sigZkRequest.query.requestId, {
       metadata: JSON.stringify(sigZkRequest.invokeRequestMetadata),
       validator: VALIDATOR_ADDRESS_V3,
