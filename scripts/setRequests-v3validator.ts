@@ -1,19 +1,38 @@
 import hre from 'hardhat';
-import Web3 from 'web3';
-import { poseidon } from '@iden3/js-crypto';
 import { SchemaHash } from '@iden3/js-iden3-core';
-import { CircuitId, prepareCircuitArrayValues } from '@0xpolygonid/js-sdk';
+import { calculateQueryHashV3, CircuitId, core } from '@0xpolygonid/js-sdk';
+import { buildVerifierId } from '../test/utils/utils';
+import { packV3ValidatorParams } from '../test/utils/pack-utils';
 
 // current smart contracts on opt-sepolia
 const VERIFIER_CONTRACT = 'UniversalVerifier'; // UniversalVerifier or ERC20Verifier
-const VERIFIER_ADDRESS = '0x102eB31F9f2797e8A84a79c01FFd9aF7D1d9e556'; // Universal Verifier (0x102eB31F9f2797e8A84a79c01FFd9aF7D1d9e556) or ERC20 Verifier (0xE5012898489C708CF273E6CD0b935c0780a9DDB5)
-const SIGV2_VALIDATOR_ADDRESS = '0xbA308e870d35A092810a3F0e4d21ece65551dE42';
-const MTP_VALIDATOR_ADDRESS = '0x5EDbb8681312bA0e01Fd41C759817194b95ee604';
+const VERIFIER_ADDRESS = '0x102eB31F9f2797e8A84a79c01FFd9aF7D1d9e556'; // Universal Verifier or ERC20 Verifier
+const VALIDATOR_ADDRESS_V3 = '0xd52131eDC6777d7F7199663dc1629307E13d723A';
 
-const TRANSFER_REQUEST_ID_SIG_VALIDATOR = 1;
-const TRANSFER_REQUEST_ID_MTP_VALIDATOR = 2;
+const TRANSFER_REQUEST_ID_V3_VALIDATOR = 3;
 
+const OPID_METHOD = 'opid';
+const OPID_BLOCKCHAIN = 'optimism';
+const OPID_CHAIN_ID_MAIN = 10;
 const OPID_CHAIN_ID_SEPOLIA = 11155420;
+const OPID_NETWORK_MAIN = 'main';
+const OPID_NETWORK_SEPOLIA = 'sepolia';
+
+core.registerDidMethod(OPID_METHOD, 0b00000011);
+core.registerDidMethodNetwork({
+  method: OPID_METHOD,
+  blockchain: OPID_BLOCKCHAIN,
+  chainId: OPID_CHAIN_ID_SEPOLIA,
+  network: OPID_NETWORK_SEPOLIA,
+  networkFlag: 0b1000_0000 | 0b0000_0010
+});
+core.registerDidMethodNetwork({
+  method: OPID_METHOD,
+  blockchain: OPID_BLOCKCHAIN,
+  chainId: OPID_CHAIN_ID_MAIN,
+  network: OPID_NETWORK_MAIN,
+  networkFlag: 0b1000_0000 | 0b0000_0001
+});
 
 const Operators = {
   NOOP: 0, // No operation, skip query verification in circuit
@@ -25,66 +44,18 @@ const Operators = {
   NE: 6 // not equal
 };
 
-function packValidatorParams(query, allowedIssuers = []) {
-  const web3 = new Web3(Web3.givenProvider || 'ws://localhost:8545');
-  return web3.eth.abi.encodeParameter(
-    {
-      CredentialAtomicQuery: {
-        schema: 'uint256',
-        claimPathKey: 'uint256',
-        operator: 'uint256',
-        slotIndex: 'uint256',
-        value: 'uint256[]',
-        queryHash: 'uint256',
-        allowedIssuers: 'uint256[]',
-        circuitIds: 'string[]',
-        skipClaimRevocationCheck: 'bool',
-        claimPathNotExists: 'uint256'
-      }
-    },
-    {
-      schema: query.schema,
-      claimPathKey: query.claimPathKey,
-      operator: query.operator,
-      slotIndex: query.slotIndex,
-      value: query.value,
-      queryHash: query.queryHash,
-      allowedIssuers: allowedIssuers,
-      circuitIds: query.circuitIds,
-      skipClaimRevocationCheck: query.skipClaimRevocationCheck,
-      claimPathNotExists: query.claimPathNotExists
-    }
-  );
-}
-
 function coreSchemaFromStr(schemaIntString) {
   const schemaInt = BigInt(schemaIntString);
   return SchemaHash.newSchemaHashFromInt(schemaInt);
 }
 
-function calculateQueryHashV2(
-  values,
-  schema,
-  slotIndex,
-  operator,
-  claimPathKey,
-  claimPathNotExists
-) {
-  const expValue = prepareCircuitArrayValues(values, 64);
-  const valueHash = poseidon.spongeHashX(expValue, 6);
-  const schemaHash = coreSchemaFromStr(schema);
-  const quaryHash = poseidon.hash([
-    schemaHash.bigInt(),
-    BigInt(slotIndex),
-    BigInt(operator),
-    BigInt(claimPathKey),
-    BigInt(claimPathNotExists),
-    valueHash
-  ]);
-  return quaryHash;
-}
+async function buildZkpRequest(requestId: number, circuit: CircuitId) {
+  const verifierId = buildVerifierId(VERIFIER_ADDRESS, {
+    blockchain: 'optimism',
+    networkId: 'sepolia',
+    method: OPID_METHOD
+  });
 
-function buildZkpRequest(requestId: number, circuit: CircuitId) {
   const query: any = {
     requestId,
     schema: '74977327600848231385663280181476307657', // you can run https://go.dev/play/p/oB_oOW7kBEw to get schema hash and claimPathKey using YOUR schema
@@ -94,16 +65,26 @@ function buildZkpRequest(requestId: number, circuit: CircuitId) {
     value: [20020101, ...new Array(63).fill(0)], // for operators 1-3 only first value matters
     circuitIds: [circuit],
     skipClaimRevocationCheck: false,
-    claimPathNotExists: 0
+    claimPathNotExists: 0,
+    verifierID: verifierId.bigInt().toString(),
+    nullifierSessionID: 0,
+    groupID: 0,
+    proofType: 0
   };
 
-  query.queryHash = calculateQueryHashV2(
-    query.value,
-    query.schema,
+  const merklized = 1;
+  const schemaHash = coreSchemaFromStr(query.schema);
+  query.queryHash = calculateQueryHashV3(
+    query.value.map((i) => BigInt(i)),
+    schemaHash,
     query.slotIndex,
     query.operator,
     query.claimPathKey,
-    query.claimPathNotExists
+    1, // valueArrSize
+    merklized,
+    query.skipClaimRevocationCheck ? 0 : 1,
+    verifierId.bigInt().toString(),
+    query.nullifierSessionID
   ).toString();
 
   const invokeRequestMetadata = {
@@ -151,35 +132,21 @@ async function main() {
 
     // Only UniversalVerifier requires whitelisting
     if (VERIFIER_CONTRACT === 'UniversalVerifier') {
-      await verifier.addValidatorToWhitelist(SIGV2_VALIDATOR_ADDRESS);
-      await verifier.addValidatorToWhitelist(MTP_VALIDATOR_ADDRESS);
+      await verifier.addValidatorToWhitelist(VALIDATOR_ADDRESS_V3);
     }
 
     // set sig request
-    const sigZkRequest = buildZkpRequest(
-      TRANSFER_REQUEST_ID_SIG_VALIDATOR,
-      CircuitId.AtomicQuerySigV2OnChain
+    const sigZkRequest = await buildZkpRequest(
+      TRANSFER_REQUEST_ID_V3_VALIDATOR,
+      CircuitId.AtomicQueryV3OnChain
     );
     const sigTx = await verifier.setZKPRequest(sigZkRequest.query.requestId, {
       metadata: JSON.stringify(sigZkRequest.invokeRequestMetadata),
-      validator: SIGV2_VALIDATOR_ADDRESS,
-      data: packValidatorParams(sigZkRequest.query)
+      validator: VALIDATOR_ADDRESS_V3,
+      data: packV3ValidatorParams(sigZkRequest.query)
     });
     await sigTx.wait();
     console.log('Sig zk request set', sigTx.hash);
-
-    // set mtp request
-    const mtpZkRequest = buildZkpRequest(
-      TRANSFER_REQUEST_ID_MTP_VALIDATOR,
-      CircuitId.AtomicQueryMTPV2OnChain
-    );
-    const mtpTx = await verifier.setZKPRequest(mtpZkRequest.query.requestId, {
-      metadata: JSON.stringify(mtpZkRequest.invokeRequestMetadata),
-      validator: MTP_VALIDATOR_ADDRESS,
-      data: packValidatorParams(mtpZkRequest.query)
-    });
-    await mtpTx.wait();
-    console.log('Mtp zk request set', mtpTx.hash);
   } catch (e) {
     console.log('error: ', e);
   }
