@@ -1,23 +1,25 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {ERC721} from '@openzeppelin/contracts/token/ERC721/ERC721.sol';
-import {PrimitiveTypeUtils} from '@iden3/contracts/lib/PrimitiveTypeUtils.sol';
-import {ICircuitValidator} from '@iden3/contracts/interfaces/ICircuitValidator.sol';
-import {EmbeddedZKPVerifier} from '@iden3/contracts/verifiers/EmbeddedZKPVerifier.sol';
+import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {PrimitiveTypeUtils} from "@iden3/contracts/lib/PrimitiveTypeUtils.sol";
+import {ICircuitValidator} from "@iden3/contracts/interfaces/ICircuitValidator.sol";
+import {EmbeddedZKPVerifier} from "@iden3/contracts/verifiers/EmbeddedZKPVerifier.sol";
 import {IZKPVerifier} from "@iden3/contracts/interfaces/IZKPVerifier.sol";
 
 contract ERC721LinkedUniversalVerifier is ERC721 {
-    uint64 public constant TRANSFER_REQUEST_ID_SIG_VALIDATOR = 0;
-    uint64 public constant TRANSFER_REQUEST_ID_MTP_VALIDATOR = 1;
+    uint64 public constant TRANSFER_REQUEST_ID_SIG_VALIDATOR = 1;
+    uint64 public constant TRANSFER_REQUEST_ID_MTP_VALIDATOR = 2;
+    uint64 public constant TRANSFER_REQUEST_ID_V3_VALIDATOR = 3;
 
     IZKPVerifier public verifier;
 
     modifier beforeTokenTransfer(address to) {
         require(
-            verifier.getProofStatus(to, TRANSFER_REQUEST_ID_SIG_VALIDATOR).isVerified ||
-                verifier.getProofStatus(to, TRANSFER_REQUEST_ID_MTP_VALIDATOR).isVerified,
-            'only identities who provided sig or mtp proof for transfer requests are allowed to receive tokens'
+            verifier.getProofStatus(to, TRANSFER_REQUEST_ID_SIG_VALIDATOR).isVerified 
+            || verifier.getProofStatus(to, TRANSFER_REQUEST_ID_MTP_VALIDATOR).isVerified 
+            || verifier.getProofStatus(to, TRANSFER_REQUEST_ID_V3_VALIDATOR).isVerified,
+            "only identities who provided sig or mtp proof for transfer requests are allowed to receive tokens"
         );
         _;
     }

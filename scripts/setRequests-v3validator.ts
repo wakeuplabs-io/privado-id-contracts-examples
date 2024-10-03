@@ -6,7 +6,7 @@ import { packV3ValidatorParams } from '../test/utils/pack-utils';
 
 // current smart contracts on opt-sepolia
 const VERIFIER_CONTRACT = 'ERC20Verifier'; // UniversalVerifier or ERC20Verifier
-const VERIFIER_ADDRESS = '0xca6bfa62791d3c7c7ed1a5b320018c1C1dAC89Ee'; // Universal Verifier or ERC20 Verifier
+const VERIFIER_ADDRESS = '0xF27c124616A8Fc816cd7ab0F4bbbFFAB35Dd7D47'; // Universal Verifier or ERC20 Verifier
 const VALIDATOR_ADDRESS_V3 = '0xd52131eDC6777d7F7199663dc1629307E13d723A';
 
 const TRANSFER_REQUEST_ID_V3_VALIDATOR = 3;

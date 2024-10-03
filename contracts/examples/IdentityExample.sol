@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity 0.8.20;
 
-import {Ownable2StepUpgradeable} from '@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol';
-import {ClaimBuilder} from '@iden3/contracts/lib/ClaimBuilder.sol';
-import {IdentityLib} from '@iden3/contracts/lib/IdentityLib.sol';
-import {IdentityBase} from '@iden3/contracts/lib/IdentityBase.sol';
-import {IState} from '@iden3/contracts/interfaces/IState.sol';
+import {Ownable2StepUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
+import {ClaimBuilder} from "@iden3/contracts/lib/ClaimBuilder.sol";
+import {IdentityLib} from "@iden3/contracts/lib/IdentityLib.sol";
+import {IdentityBase} from "@iden3/contracts/lib/IdentityBase.sol";
+import {IState} from "@iden3/contracts/interfaces/IState.sol";
 
 
 /**
