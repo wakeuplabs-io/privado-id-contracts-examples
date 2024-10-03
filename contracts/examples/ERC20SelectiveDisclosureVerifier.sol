@@ -68,8 +68,8 @@ contract ERC20SelectiveDisclosureVerifier is ERC20Upgradeable, EmbeddedZKPVerifi
         ERC20SelectiveDisclosureVerifierStorage
             storage $ = _getERC20SelectiveDisclosureVerifierStorage();
         if (requestId == TRANSFER_REQUEST_ID_V3_VALIDATOR) {
-            // if proof is given for transfer request id ( mtp or sig ) and it's a first time we mint tokens to sender
-            uint256 id = inputs[1];
+            // if proof is given for transfer request id and it's a first time we mint tokens to sender
+            uint256 id = inputs[validator.inputIndexOf("userID")];
             if ($.idToAddress[id] == address(0) && $.addressToId[_msgSender()] == 0) {
                 super._mint(_msgSender(), $.TOKEN_AMOUNT_FOR_AIRDROP_PER_ID);
                 $.addressToId[_msgSender()] = id;

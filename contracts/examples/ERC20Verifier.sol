@@ -9,7 +9,6 @@ import {EmbeddedZKPVerifier} from "@iden3/contracts/verifiers/EmbeddedZKPVerifie
 contract ERC20Verifier is ERC20Upgradeable, EmbeddedZKPVerifier {
     uint64 public constant TRANSFER_REQUEST_ID_SIG_VALIDATOR = 1;
     uint64 public constant TRANSFER_REQUEST_ID_MTP_VALIDATOR = 2;
-    uint64 public constant TRANSFER_REQUEST_ID_V3_VALIDATOR = 3;
 
     /// @custom:storage-location erc7201:opid.storage.ERC20Verifier
     struct ERC20VerifierStorage {
@@ -31,8 +30,7 @@ contract ERC20Verifier is ERC20Upgradeable, EmbeddedZKPVerifier {
     modifier beforeTransfer(address to) {
         require(
             isProofVerified(to, TRANSFER_REQUEST_ID_SIG_VALIDATOR) ||
-            isProofVerified(to, TRANSFER_REQUEST_ID_MTP_VALIDATOR) || 
-            isProofVerified(to, TRANSFER_REQUEST_ID_V3_VALIDATOR),
+            isProofVerified(to, TRANSFER_REQUEST_ID_MTP_VALIDATOR),
             "only identities who provided sig or mtp proof for transfer requests are allowed to receive tokens"
         );
         _;
@@ -66,11 +64,10 @@ contract ERC20Verifier is ERC20Upgradeable, EmbeddedZKPVerifier {
         ERC20VerifierStorage storage $ = _getERC20VerifierStorage();
         if (
             requestId == TRANSFER_REQUEST_ID_SIG_VALIDATOR ||
-            requestId == TRANSFER_REQUEST_ID_MTP_VALIDATOR ||
-            requestId == TRANSFER_REQUEST_ID_V3_VALIDATOR
+            requestId == TRANSFER_REQUEST_ID_MTP_VALIDATOR
         ) {
-            // if proof is given for transfer request id ( mtp or sig ) and it"s a first time we mint tokens to sender
-            uint256 id = inputs[1];
+            // if proof is given for transfer request id ( mtp or sig ) and it's a first time we mint tokens to sender
+            uint256 id = inputs[validator.inputIndexOf("userID")];
             if ($.idToAddress[id] == address(0) && $.addressToId[_msgSender()] == 0) {
                 super._mint(_msgSender(), $.TOKEN_AMOUNT_FOR_AIRDROP_PER_ID);
                 $.addressToId[_msgSender()] = id;

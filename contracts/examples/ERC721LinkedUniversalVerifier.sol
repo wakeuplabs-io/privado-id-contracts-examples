@@ -8,17 +8,15 @@ import {EmbeddedZKPVerifier} from "@iden3/contracts/verifiers/EmbeddedZKPVerifie
 import {IZKPVerifier} from "@iden3/contracts/interfaces/IZKPVerifier.sol";
 
 contract ERC721LinkedUniversalVerifier is ERC721 {
-    uint64 public constant TRANSFER_REQUEST_ID_SIG_VALIDATOR = 1;
-    uint64 public constant TRANSFER_REQUEST_ID_MTP_VALIDATOR = 2;
-    uint64 public constant TRANSFER_REQUEST_ID_V3_VALIDATOR = 3;
+    uint64 public constant TRANSFER_REQUEST_ID_SIG_VALIDATOR = 0;
+    uint64 public constant TRANSFER_REQUEST_ID_MTP_VALIDATOR = 1;
 
     IZKPVerifier public verifier;
 
     modifier beforeTokenTransfer(address to) {
         require(
             verifier.getProofStatus(to, TRANSFER_REQUEST_ID_SIG_VALIDATOR).isVerified 
-            || verifier.getProofStatus(to, TRANSFER_REQUEST_ID_MTP_VALIDATOR).isVerified 
-            || verifier.getProofStatus(to, TRANSFER_REQUEST_ID_V3_VALIDATOR).isVerified,
+            || verifier.getProofStatus(to, TRANSFER_REQUEST_ID_MTP_VALIDATOR).isVerified,
             "only identities who provided sig or mtp proof for transfer requests are allowed to receive tokens"
         );
         _;
