@@ -1,6 +1,6 @@
 import hre from 'hardhat';
 import { SchemaHash } from '@iden3/js-iden3-core';
-import { calculateQueryHashV3, CircuitId, core } from '@0xpolygonid/js-sdk';
+import { calculateQueryHashV3, CircuitId, core } from '@wakeuplabs/opid-sdk';
 import { buildVerifierId } from '../test/utils/utils';
 import { packV3ValidatorParams } from '../test/utils/pack-utils';
 

@@ -2,7 +2,7 @@ import hre from 'hardhat';
 import Web3 from 'web3';
 import { poseidon } from '@iden3/js-crypto';
 import { SchemaHash } from '@iden3/js-iden3-core';
-import { CircuitId, prepareCircuitArrayValues } from '@0xpolygonid/js-sdk';
+import { CircuitId, prepareCircuitArrayValues } from '@wakeuplabs/opid-sdk';
 
 // current smart contracts on opt-sepolia
 const VERIFIER_CONTRACT = 'ERC20Verifier'; // UniversalVerifier or ERC20Verifier
