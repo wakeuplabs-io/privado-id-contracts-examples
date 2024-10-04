@@ -1,38 +1,19 @@
 import hre from 'hardhat';
 import { SchemaHash } from '@iden3/js-iden3-core';
-import { calculateQueryHashV3, CircuitId, core } from '@0xpolygonid/js-sdk';
+import { calculateQueryHashV3, CircuitId, core, OPID_METHOD } from '@wakeuplabs/opid-sdk';
 import { buildVerifierId } from '../test/utils/utils';
 import { packV3ValidatorParams } from '../test/utils/pack-utils';
 
 // current smart contracts on opt-sepolia
 const VERIFIER_CONTRACT = 'ERC20SelectiveDisclosureVerifier';
-const VERIFIER_ADDRESS = '0x9B786F6218FFF6d9742f22426cF4bDDC6F8cb9f8'; // ERC20SelectiveDisclosureVerifier
+const VERIFIER_ADDRESS = '0x9001f41Fbe63fF09635Fe8Dfc532035BA34348B9'; // ERC20SelectiveDisclosureVerifier
 const VALIDATOR_ADDRESS_V3 = '0xd52131eDC6777d7F7199663dc1629307E13d723A';
 
 const TRANSFER_REQUEST_ID_V3_VALIDATOR = 3;
 
-const OPID_METHOD = 'opid';
 const OPID_BLOCKCHAIN = 'optimism';
-const OPID_CHAIN_ID_MAIN = 10;
 const OPID_CHAIN_ID_SEPOLIA = 11155420;
-const OPID_NETWORK_MAIN = 'main';
 const OPID_NETWORK_SEPOLIA = 'sepolia';
-
-core.registerDidMethod(OPID_METHOD, 0b00000011);
-core.registerDidMethodNetwork({
-  method: OPID_METHOD,
-  blockchain: OPID_BLOCKCHAIN,
-  chainId: OPID_CHAIN_ID_SEPOLIA,
-  network: OPID_NETWORK_SEPOLIA,
-  networkFlag: 0b1000_0000 | 0b0000_0010
-});
-core.registerDidMethodNetwork({
-  method: OPID_METHOD,
-  blockchain: OPID_BLOCKCHAIN,
-  chainId: OPID_CHAIN_ID_MAIN,
-  network: OPID_NETWORK_MAIN,
-  networkFlag: 0b1000_0000 | 0b0000_0001
-});
 
 const Operators = {
   NOOP: 0, // No operation, skip query verification in circuit
