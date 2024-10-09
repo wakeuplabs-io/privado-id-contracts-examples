@@ -4,6 +4,7 @@ async function main() {
   const contractName = 'ERC20SelectiveDisclosureVerifier';
   const name = 'ERC20SelectiveDisclosureVerifier';
   const symbol = 'ERCZKP';
+
   const ERC20ContractFactory = await ethers.getContractFactory(contractName);
   const erc20instance = await upgrades.deployProxy(ERC20ContractFactory, [name, symbol]);
 

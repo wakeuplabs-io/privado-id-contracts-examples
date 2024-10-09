@@ -5,12 +5,10 @@ import { deployPoseidons } from '../test/utils/deploy-poseidons.util';
 import { StateDeployHelper } from '../test/helpers/StateDeployHelper';
 import { ethers } from 'hardhat';
 
-const pathOutputJson = path.join(__dirname, './deploy_output.json');
+const STATE_ADDRESS = '0x9a1A258702050BcFB938Ad8Ec0996503473216d1'; // current state smart contract on opt-sepolia
+const PATH_OUTPUT_JSON = path.join(__dirname, './deploy_output.json');
 
 async function main() {
-  // current state smart contract on opt-sepolia
-  const stateAddress = '0x9a1A258702050BcFB938Ad8Ec0996503473216d1';
-
   const owner = (await ethers.getSigners())[0];
   const [poseidon2Elements, poseidon3Elements, poseidon4Elements] = await deployPoseidons(
     owner,
@@ -30,21 +28,19 @@ async function main() {
     smtLib,
     poseidon3Elements,
     poseidon4Elements,
-    stateAddress
+    STATE_ADDRESS
   );
 
-  const balanceCredentialIssuer = contracts.balanceCredentialIssuer;
-
   const outputJson = {
-    state: stateAddress,
+    state: STATE_ADDRESS,
     smtLib: await smtLib.getAddress(),
-    balanceCredentialIssuer: await balanceCredentialIssuer.getAddress(),
+    balanceCredentialIssuer: await contracts.balanceCredentialIssuer.getAddress(),
     poseidon2: await poseidon2Elements.getAddress(),
     poseidon3: await poseidon3Elements.getAddress(),
     poseidon4: await poseidon4Elements.getAddress(),
     network: process.env.HARDHAT_NETWORK
   };
-  fs.writeFileSync(pathOutputJson, JSON.stringify(outputJson, null, 1));
+  fs.writeFileSync(PATH_OUTPUT_JSON, JSON.stringify(outputJson, null, 1));
 }
 
 main()
