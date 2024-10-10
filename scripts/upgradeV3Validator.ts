@@ -1,8 +1,6 @@
 import { StateDeployHelper } from '../test/helpers/StateDeployHelper';
 
-// current smart contracts on opt-sepolia
-// CredentialAtomicQueryV3Validator or CredentialAtomicQueryMTPV2Validator or CredentialAtomicQuerySigV2Validator
-const VALIDATOR_CONTRACT_NAME = '...';
+const VALIDATOR_CONTRACT_NAME = 'CredentialAtomicQueryV3Validator';
 const VALIDATOR_CONTRACT_ADDRESS = '...';
 
 async function main() {
