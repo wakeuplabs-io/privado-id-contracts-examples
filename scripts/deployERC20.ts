@@ -1,10 +1,10 @@
 import { ethers, upgrades } from 'hardhat';
 
-async function main() {
-  const contractName = 'ERC20Verifier';
-  const name = 'ERC20ZKPVerifier';
-  const symbol = 'ERCZKP';
+const contractName = 'ERC20Verifier';
+const name = 'ERC20ZKPVerifier';
+const symbol = 'ERCZKP';
 
+async function main() {
   const ERC20ContractFactory = await ethers.getContractFactory(contractName);
   const erc20instance = await upgrades.deployProxy(ERC20ContractFactory, [name, symbol]);
 

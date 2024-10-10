@@ -1,17 +1,13 @@
 import { ethers } from 'hardhat';
 
 // current universal verifier smart contract on opt-sepolia
-const universalVerifierAddress = '0x102eB31F9f2797e8A84a79c01FFd9aF7D1d9e556';
+const UNIVERSAL_VERIFIER = '0x102eB31F9f2797e8A84a79c01FFd9aF7D1d9e556';
+const verifierName = 'ERC20LinkedUniversalVerifier';
+const verifierSymbol = 'zkERC20';
 
 async function main() {
-  if (!ethers.isAddress(universalVerifierAddress)) {
-    throw new Error('Please set universal verifier address');
-  }
-  const verifierName = 'ERC20LinkedUniversalVerifier';
-  const verifierSymbol = 'zkERC20';
-
   const verifier = await ethers.deployContract(verifierName, [
-    universalVerifierAddress,
+    UNIVERSAL_VERIFIER,
     verifierName,
     verifierSymbol
   ]);

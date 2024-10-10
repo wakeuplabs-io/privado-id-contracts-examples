@@ -1,17 +1,16 @@
 import { StateDeployHelper } from '../test/helpers/StateDeployHelper';
 
-async function main() {
-  // current smart contracts on opt-sepolia
-  const validatorContractAddress = '0xd52131eDC6777d7F7199663dc1629307E13d723A';
-  const validatorContractName = 'CredentialAtomicQueryV3Validator';
+const VALIDATOR_CONTRACT_NAME = 'CredentialAtomicQueryV3Validator';
+const VALIDATOR_CONTRACT_ADDRESS = '...';
 
+async function main() {
   const stateDeployHelper = await StateDeployHelper.initialize();
 
   const v = await stateDeployHelper.upgradeValidator(
-    validatorContractAddress,
-    validatorContractName
+    VALIDATOR_CONTRACT_ADDRESS,
+    VALIDATOR_CONTRACT_NAME
   );
-  console.log(validatorContractName, 'validator upgraded on ', await v.validator.getAddress());
+  console.log(VALIDATOR_CONTRACT_NAME, 'validator upgraded on ', await v.validator.getAddress());
 }
 
 main()
